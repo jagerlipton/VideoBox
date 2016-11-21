@@ -3,4 +3,15 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="corner">#000000</color>
+    <color name="bg_corner">#e4e2e3</color>
+    <color name="bg_corner_selected">#938d8f</color>
+    <color name="toolbarcolor">#e4e2e3</color>
+
+    <color name="button_back_fontcolor">#000000</color>
+    <color name="button_forward_fontcolor">#000000</color>
+
+    <color name="header_font_color">#000000</color>
+    <color name="sub_header_font_color">#000000</color>
 </resources>

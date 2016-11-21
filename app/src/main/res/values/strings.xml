@@ -1,3 +1,68 @@
 <resources>
-    <string name="app_name">VideoBox</string>
+    <string name="app_name">VideoSurfer - Kinogo</string>
+    <string name="button_back">Назад</string>
+    <string name="button_forward">Вперед</string>
+
+
+    <string name="drawer_item_category">Category</string>
+    <string name="drawer_item_year">Year</string>
+    <string name="drawer_item_country">Country</string>
+    <string name="drawer_item_search">Search</string>
+    <string name="drawer_item_exit">Exit</string>
+
+    <string name="drawer_item_fighting">Боевики</string>
+    <string name="drawer_item_detective">Детективы</string>
+    <string name="drawer_item_documental">Документалки</string>
+    <string name="drawer_item_drama">Драма</string>
+    <string name="drawer_item_historic">Исторические</string>
+    <string name="drawer_item_comedy">Комедии</string>
+    <string name="drawer_item_criminal">Криминал</string>
+    <string name="drawer_item_melodrama">Мелодрама</string>
+    <string name="drawer_item_mult">Мультики</string>
+    <string name="drawer_item_musicle">Мюзикл</string>
+    <string name="drawer_item_ussr">Отечественные</string>
+    <string name="drawer_item_adventures">Приключения</string>
+    <string name="drawer_item_family">Семейные</string>
+    <string name="drawer_item_sport">Спортивные</string>
+    <string name="drawer_item_triller">Триллер</string>
+    <string name="drawer_item_horror">Ужасы</string>
+    <string name="drawer_item_fantasy">Фэнтази</string>
+    <string name="drawer_item_fantastika">Фантастика</string>
+    <string name="drawer_item_year2014">2014</string>
+    <string name="drawer_item_year2015">2015</string>
+    <string name="drawer_item_year2016">2016</string>
+    <string name="drawer_item_serials">Сериалы</string>
+    <string name="drawer_item_serial_russian">Русские</string>
+    <string name="drawer_item_serial_notrussian">Иностранные</string>
+
+    <string name="drawer_item_history">Просмотренные</string>
+    <string name="drawer_item_startpage">Начальная страница</string>
+
+    <string name="link_item_fighting">http://kinogo.club/boeviki/</string>
+    <string name="link_item_detective">http://kinogo.club/detektivy/</string>
+    <string name="link_item_documental">http://kinogo.club/dokumentalnye/</string>
+    <string name="link_item_drama">http://kinogo.club/dramy/</string>
+    <string name="link_item_historic">http://kinogo.club/istoricheskie/</string>
+    <string name="link_item_comedy">http://kinogo.club/komedii/</string>
+    <string name="link_item_criminal">http://kinogo.club/kriminal/</string>
+    <string name="link_item_melodrama">http://kinogo.club/melodramy/</string>
+    <string name="link_item_mult">http://kinogo.club/multfilmy/</string>
+    <string name="link_item_musicle">http://kinogo.club/mjuzikly/</string>
+    <string name="link_item_ussr">http://kinogo.club/otechestvenie/</string>
+    <string name="link_item_adventures">http://kinogo.club/prikljuchenija/</string>
+    <string name="link_item_family">http://kinogo.club/semejnye/</string>
+    <string name="link_item_sport">http://kinogo.club/sportivnye/</string>
+    <string name="link_item_triller">http://kinogo.club/trillery/</string>
+    <string name="link_item_horror">http://kinogo.club/uzhasy/</string>
+    <string name="link_item_fantasy">http://kinogo.club/fjentjezi/</string>
+    <string name="link_item_fantastika">http://kinogo.club/fantastika/</string>
+    <string name="link_item_year2014">http://kinogo.club/filmy_2014/</string>
+    <string name="link_item_year2015">http://kinogo.club/filmy_2015/</string>
+    <string name="link_item_year2016">http://kinogo.club/filmi_2016/</string>
+    <string name="link_item_serials">Сериалы</string>
+    <string name="link_item_serial_russian">http://kinogo.club/russkie_serialy/</string>
+    <string name="link_item_serial_notrussian">http://kinogo.club/zarubezhnye_serialy/</string>
+    <string name="link_item_startpage">http://kinogo.club/</string>
+
+
 </resources>

@@ -1,28 +1,69 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:weightSum="1"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:background="@color/toolbarcolor"
+    >
 
-    tools:context=".MainActivity" >
 
-    <GridView
-        android:id="@+id/gridView1"
+
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/textView1"
-        android:numColumns="5" >
+        android:background="@color/toolbarcolor"
+        android:minHeight="?attr/actionBarSize"
 
-    </GridView>
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
+
+        />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:text=" Computer Languages..." />
+        android:orientation="vertical"
+        android:layout_weight="1"
+       >
 
-</RelativeLayout> 
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="1"
+        android:id="@+id/gridView1"
+
+         />
+    </LinearLayout>
+
+    <LinearLayout style="?android:buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/linear"
+        android:background="@color/toolbarcolor"
+        android:layout_weight="0"
+
+        >
+        <Button style="?android:buttonBarButtonStyle"
+            android:text="@string/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/backward"
+            android:onClick="back_click"
+            android:layout_weight="1"
+            android:textColor="@color/button_back_fontcolor"/>
+
+        <Button style="?android:buttonBarButtonStyle"
+            android:text="@string/button_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/forward"
+            android:onClick="forward_click"
+            android:layout_weight="1"
+            android:textColor="@color/button_back_fontcolor" />
+
+    </LinearLayout>
+
+</LinearLayout>
