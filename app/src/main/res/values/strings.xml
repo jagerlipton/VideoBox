@@ -1,14 +1,14 @@
 <resources>
-    <string name="app_name">VideoSurfer - Kinogo</string>
+    <string name="app_name">ЙО-ХО-ХО</string>
     <string name="button_back">Назад</string>
     <string name="button_forward">Вперед</string>
 
 
-    <string name="drawer_item_category">Category</string>
-    <string name="drawer_item_year">Year</string>
-    <string name="drawer_item_country">Country</string>
-    <string name="drawer_item_search">Search</string>
-    <string name="drawer_item_exit">Exit</string>
+    <string name="drawer_item_category">Категории</string>
+    <string name="drawer_item_year">По году</string>
+    <string name="drawer_item_country">По стране</string>
+    <string name="drawer_item_search">Поиск</string>
+    <string name="drawer_item_exit">Выход</string>
 
     <string name="drawer_item_fighting">Боевики</string>
     <string name="drawer_item_detective">Детективы</string>
@@ -64,5 +64,12 @@
     <string name="link_item_serial_notrussian">http://kinogo.club/zarubezhnye_serialy/</string>
     <string name="link_item_startpage">http://kinogo.club/</string>
 
+
+
+    <string name="run_task">Run</string>
+    <string name="task_working">Working (%1$d)...</string>
+    <string name="task_starting">Starting...</string>
+    <string name="task_cancelled">Task is cancelled by user</string>
+    <string name="task_completed">Task is completed with result (%1$s)</string>
 
 </resources>

@@ -7,6 +7,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
@@ -35,9 +38,11 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.ImageHolder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.ExpandableDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
@@ -60,29 +65,30 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    String pagelink = "";
-    String searchpagelink="http://kinogo.club/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&titleonly=3&story=";
-    String back_pagelink="";
-    String forward_pagelink="";
-    String searchstring="";
+
+   private final static String searchpagelink="http://kinogo.club/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&titleonly=3&story=";
+    private  String back_pagelink="";
+    private  String forward_pagelink="";
+
     String poster_url="";
     String poster_header="";
     String poster_sub_header="";
     String userAgent = "Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36";
     private AccountHeader headerResult = null;
-    private Drawer result = null;
+    private Drawer drawerresult = null;
     ExpandableDrawerItem category = new  ExpandableDrawerItem();
     ExpandableDrawerItem year = new  ExpandableDrawerItem();
     ExpandableDrawerItem serials = new  ExpandableDrawerItem();
-
-
+    private IProfile profile_kinogo;
+    private IProfile profile_kinokrad;
+    private static final int PROFILE_SETTING = 1;
 
     private  ArrayList<Item> arrayList = new ArrayList<>();
     private  ArrayList<PlaylistItem> playList = new ArrayList<>();
     ListView listView;
     GridView gv;
     Context context;
-    ArrayList prgmName;
+
 
 
 
@@ -106,8 +112,7 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchstring=query;
-                opensearchpage(searchpagelink);
+                               opensearchpage(query);
 
 
                 return false;
@@ -122,27 +127,73 @@ public class MainActivity extends AppCompatActivity {
     }
 /// create resume============================================================
 
+
+    private void buildHeader(boolean compact, Bundle savedInstanceState) {
+            headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+               // .withHeaderBackground(R.drawable.header)
+                .withHeaderBackground(new ColorDrawable(Color.parseColor("#c1000000")))
+               // .withCompactStyle(true)
+                .withProfileImagesVisible(false)
+                .addProfiles(
+                        profile_kinogo,
+                        profile_kinokrad
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+
+                        //if (profile instanceof IDrawerItem && ((IDrawerItem) profile).getIdentifier() == PROFILE_SETTING) {
+
+                            if (headerResult.getProfiles() != null) {
+                               if (profile.getName().toString()==("Kinogo.co"))headerResult.setHeaderBackground(new ImageHolder(R.drawable.header));
+                                if (profile.getName().toString()==("Kinokrad.co"))headerResult.setHeaderBackground(new ImageHolder(R.drawable.header2));
+                        }
+
+                                               return false;
+                    }
+                })
+                .withSavedInstance(savedInstanceState)
+                .build();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         gv=(GridView) findViewById(R.id.gridView1);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        profile_kinogo = new ProfileDrawerItem().withName("Kinogo.co").withIdentifier(1000);
+        profile_kinokrad = new ProfileDrawerItem().withName("Kinokrad.co").withIdentifier(1001);
 
-        category = new ExpandableDrawerItem().withName(R.string.drawer_item_category).withIdentifier(2).withSelectable(false);
-        year = new ExpandableDrawerItem().withName(R.string.drawer_item_year).withIdentifier(3).withSelectable(false);
-        serials = new ExpandableDrawerItem().withName(R.string.drawer_item_serials).withIdentifier(4).withSelectable(false);
+        buildHeader(false, savedInstanceState);
 
-        result = new DrawerBuilder()
+
+        category = new ExpandableDrawerItem().withName(R.string.drawer_item_category).withIdentifier(2).withSelectable(false).withArrowColor(getResources().getColor(R.color.arrows_barcolor));
+        year = new ExpandableDrawerItem().withName(R.string.drawer_item_year).withIdentifier(3).withSelectable(false).withArrowColor(getResources().getColor(R.color.arrows_barcolor));
+        serials = new ExpandableDrawerItem().withName(R.string.drawer_item_serials).withIdentifier(4).withSelectable(false).withArrowColor(getResources().getColor(R.color.arrows_barcolor));
+
+        //выбор сохраненного профиля
+        headerResult.setActiveProfile(profile_kinogo);headerResult.setHeaderBackground(new ImageHolder(R.drawable.header));
+
+
+
+        drawerresult = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withHasStableIds(true)
+                .withAccountHeader(headerResult)
                 .withSelectedItem(-1)
+                .withInnerShadow(true)
+
                 .withActionBarDrawerToggleAnimated(true)
+                .withDisplayBelowStatusBar(false)
                 .addDrawerItems(
                         new  PrimaryDrawerItem().withName(R.string.drawer_item_startpage).withIdentifier(7).withSelectable(false),
                               new DividerDrawerItem(),
@@ -194,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                         } else if (drawerItem.getIdentifier() == 5) {
                             MainActivity.this.finish();//exit
                         } else if (drawerItem.getIdentifier() == 6) {
-                         //history
+                            showRecent(); //recent
                         } else if (drawerItem.getIdentifier() == 201) {
                             openpage(getResources().getString(R.string.link_item_fighting));
                         } else if (drawerItem.getIdentifier() == 202) {
@@ -248,9 +299,10 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
 
-        new RecyclerViewCacheUtil<IDrawerItem>().withCacheSize(2).apply(result.getRecyclerView(), result.getDrawerItems());
+        new RecyclerViewCacheUtil<IDrawerItem>().withCacheSize(2).apply(drawerresult.getRecyclerView(), drawerresult.getDrawerItems());
 
         openpage(getResources().getString(R.string.link_item_startpage));
+
 
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -277,17 +329,19 @@ public class MainActivity extends AppCompatActivity {
         poster_url=item.pictureurl;
         poster_header=item.header;
         poster_sub_header=item.subheader;
+
+
+
       //  Log.d("ololo", );
     }
 
     private void opensearchpage(String link){
-        pagelink=link;
-        new SearchTask().execute();
+
+        new SearchKinogo().execute(link);
 
     }
     private void openpage(String link){
-        pagelink=link;
-        new MyTask().execute();
+          new OpenKinogoPage().execute(link);
 
     }
 
@@ -302,6 +356,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void showRecent(){
+        Intent recent = new Intent(MainActivity.this, RecentActivity.class );
+        startActivity(recent);
+    }
+
 
     private void viewSeriesList(){
         Intent playerIntent = new Intent(MainActivity.this, playlist.class);
@@ -315,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(playerIntent);
 
     }
-
+//=================парсинг страницы перед запуском фильма. получение base64 плеера, ссылок.
     public class GetPlayerTask extends AsyncTask<String, Void, String> {
 
         @Override
@@ -326,33 +385,48 @@ public class MainActivity extends AppCompatActivity {
             try {
 
                 Document document = Jsoup.connect(flvurl).userAgent(userAgent).get();
-                Elements encodeplayer = document.select(".box.visible");
-                Elements scriptElements = encodeplayer.tagName("script");
-                String encodedstring="";
-                String decodedstring="";
-                for(Element encodedplayer:scriptElements)encodedstring=encodedplayer.data();
-                encodedstring=encodedstring.substring(encodedstring.indexOf("'")+1,encodedstring.length());
-                encodedstring=encodedstring.substring(0,encodedstring.indexOf("'"));
 
-                encodedstring=Mathem.base64_decode(encodedstring);
-                Document decodedplayerDoc = Jsoup.parse(encodedstring);
-                Elements decodedplayerElements = decodedplayerDoc.select(".uppod_style_video");
-                for(Element titleFromSite:decodedplayerElements) {
-                    Element el = titleFromSite.select("param").last();
-                    decodedstring = el.val();
+                    Elements encodeplayer = document.select(".box.visible");
+                    Elements scriptElements = encodeplayer.tagName("script");
+                    String elementString=scriptElements.html();
+                   if (elementString.indexOf("<script")==0) {
 
-                }
+                       String encodedstring = "";
+                       String decodedstring = "";
+                       for (Element encodedplayer : scriptElements)
+                           encodedstring = encodedplayer.data();
 
-                //String st=decodedstring.substring(decodedstring.indexOf("st=")+3,decodedstring.indexOf("&file"));
+                       encodedstring = encodedstring.substring(encodedstring.indexOf("'") + 1, encodedstring.length());
+                       encodedstring = encodedstring.substring(0, encodedstring.indexOf("'"));
 
-                if (decodedstring.indexOf("file=")>0){
-                String file=decodedstring.substring(decodedstring.indexOf("file=")+5,decodedstring.indexOf("&poster"));
-                flvurl=Mathem.deup(file,Mathem.hash1);
 
-                } else if (decodedstring.indexOf("pl=")>0) {
-                    flvurl=decodedstring.substring(decodedstring.indexOf("pl=")+3,decodedstring.indexOf("&poster"));
+                       encodedstring = Mathem.base64_decode(encodedstring);
+                       Document decodedplayerDoc = Jsoup.parse(encodedstring);
+                       Elements decodedplayerElements = decodedplayerDoc.select(".uppod_style_video");
+                       for (Element titleFromSite : decodedplayerElements) {
+                           Element el = titleFromSite.select("param").last();
+                           decodedstring = el.val();
 
-                }
+                       }
+
+
+                       if (decodedstring.indexOf("file=") > 0) { // если есть закодированный файл, раскодируем
+                           String file = decodedstring.substring(decodedstring.indexOf("file=") + 5, decodedstring.indexOf("&poster"));
+                           flvurl = Mathem.deup(file, Mathem.hash1);
+
+                       } else if (decodedstring.indexOf("pl=") > 0) { // если есть плейлист, копируем название
+                           flvurl = decodedstring.substring(decodedstring.indexOf("pl=") + 3, decodedstring.indexOf("&poster"));
+
+                       }
+                   }
+                else if (elementString.indexOf("<iframe")==0){ //если фрейм с чужого сайта, ничего не делаем
+                         Elements iframess = document.select(".box.visible");
+                         Element framesElement = iframess.select("iframe").first();
+                         flvurl = framesElement.attr("src");
+                         flvurl=flvurl.substring(flvurl.indexOf("www."),flvurl.length());
+
+                   }
+
 
                    }catch (IOException ex){
                 ex.printStackTrace();
@@ -365,24 +439,33 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(String flvurl) {
             super.onPostExecute(flvurl);
-          if (flvurl.indexOf(".flv")>0) startplayer(flvurl);
-                  else if (flvurl.indexOf(".txt")>0)  new getPlaylist().execute(flvurl);
+          if (flvurl.indexOf(".flv")>0) startplayer(flvurl); //если прямой линн, запускаем плеер
+                  else if (flvurl.indexOf(".txt")>0)  new getPlaylist().execute(flvurl); // если  плейлист, получаем лист
 
              }
     }
 
-  //===========
+  //===========парсинг строк из плейлиста тхт
 
     private PlaylistItem parsePlaylistLine(String s){
         PlaylistItem pItem= new PlaylistItem("","","","");
 
-        if (s.indexOf("comment")>0)pItem.header=s.substring(s.indexOf(":")+2,s.indexOf("<br>"));
-        if (s.indexOf("<br>")>0)pItem.subheader=s.substring(s.indexOf("<br>")+4,s.indexOf("\",\"file\":\""));
-        if (s.indexOf("\",\"file\":\"")>0) pItem.url=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
+        if ((s.indexOf("comment")>0)&&(s.indexOf("<br>")<(s.indexOf("\",\"file\":\""))&&(s.indexOf("<br>")>0))) {
+            pItem.header=s.substring(s.indexOf(":")+2,s.indexOf("<br>"));
+            pItem.subheader = s.substring(s.indexOf("<br>") + 4, s.indexOf("\",\"file\":\""));
+            pItem.url=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
+        }
+        else if ((s.indexOf("comment")>0)&&(!s.contains("<br>"))) {
+        pItem.header=s.substring(s.indexOf("{\"comment\":\"")+12,s.indexOf("\",\"file\":\""));
+
+            System.out.println(pItem.header);
+          pItem.subheader = "";
+         pItem.url=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
+        }
 
         return pItem;
     }
-
+//====================получение текста плейлиста тхт из тырнета
     private class  getPlaylist extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -400,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
                 PlaylistItem pItem = new PlaylistItem("","","","");
                 while ((str = in.readLine()) != null) {
                     result += str;
-                    if ((!str.isEmpty())&&(str.indexOf("comment")>0)) playList.add(parsePlaylistLine(str));
+                    if ((!str.isEmpty())&&(str.indexOf("comment")>0)){ playList.add(parsePlaylistLine(str));  }
 
                 }
                 in.close();
@@ -417,22 +500,23 @@ public class MainActivity extends AppCompatActivity {
   @Override
         protected void onPostExecute(Void aVoid)
         {
-            //System.out.println("startttscuk");
-            viewSeriesList();
-           //
+                  viewSeriesList(); // передаем в интент данные и открываем активити плейлиста
+
         }
     }
 
+//===================парсинг страницы поискового результата
 
-
-    public class SearchTask extends AsyncTask<Void, Void, Void> {
+    public class SearchKinogo extends AsyncTask<String, Void, String> {
         @Override
-        protected Void doInBackground(Void... voids) {
-
+        protected String doInBackground(String... parameter) {
+            String urlpage="";
+            for (String p : parameter)urlpage=p;
             try {
+
                 arrayList.clear();
 
-               String normalUrl= URLEncoder.encode(searchstring, "Windows-1251");
+               String normalUrl= URLEncoder.encode(urlpage, "Windows-1251");
                Document document = Jsoup.connect(searchpagelink+normalUrl).userAgent(userAgent).get();
                Elements shortstory = document.select(".shortstory");
                Elements headers = document.select(".zagolovki");
@@ -465,29 +549,31 @@ public class MainActivity extends AppCompatActivity {
             }catch (IOException ex){
                 ex.printStackTrace();
             }
-            return null;
+            return urlpage;
         }
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(String urlpage) {
             CustomAdapter adapter = new CustomAdapter (MainActivity.this, arrayList);
             gv.setAdapter(adapter);
             adapter.notifyDataSetChanged();
         }
     }
 
-
-    public class MyTask extends AsyncTask<Void, Void, Void> {
+//==========парсит страницу с 10 фильмами
+    public class OpenKinogoPage extends AsyncTask<String, Void, String> {
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected String doInBackground(String...parameter) {
+            String urlpage="";
+            for (String p : parameter)urlpage=p;
 
             try {
                 arrayList.clear();
-                Document document = Jsoup.connect(pagelink).userAgent(userAgent).get();
+                Document document = Jsoup.connect(urlpage).userAgent(userAgent).get();
                 Elements shortstory = document.select(".shortstory");
                 Elements headers = shortstory.select(".zagolovki");
                 Elements imgs = shortstory.select(".shortimg");
 
-                    for(Element titleFromSite:headers){
+                    for(Element titleFromSite:headers){ //получение названия фильма
                     if(titleFromSite.text().equals(""))   continue;
                         String filmName = titleFromSite.text();
                         Element link= titleFromSite.select("a").first();
@@ -501,7 +587,7 @@ public class MainActivity extends AppCompatActivity {
                      arrayList.add(tempitem);
                 }
                 Integer i=0;
-                for(Element img:imgs){
+                for(Element img:imgs){   // получение постера и описания
                     if (imgs.size()==headers.size()){
                         String subtext=img.text();
                         Element link= img.select("a").first();
@@ -511,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
                     i++;
                     }
                 }
-                Elements buttons = document.select(".bot-navigation");
+                Elements buttons = document.select(".bot-navigation"); // получение ссылок на кнопки назад-вперед
                 for(Element button:buttons){
                     Element link1= button.select("a").first();
                     back_pagelink = link1.attr("href");
@@ -532,10 +618,10 @@ public class MainActivity extends AppCompatActivity {
                 }catch (IOException ex){
                 ex.printStackTrace();
             }
-            return null;
+            return urlpage;
         }
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(String urlpage) {
             CustomAdapter adapter = new CustomAdapter (MainActivity.this, arrayList);
             gv.setAdapter(adapter);
             adapter.notifyDataSetChanged();
@@ -544,8 +630,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-          if (result != null && result.isDrawerOpen()) {
-            result.closeDrawer();
+          if (drawerresult != null && drawerresult.isDrawerOpen()) {
+              drawerresult.closeDrawer();
         } else {
             super.onBackPressed();
         }
@@ -562,13 +648,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchBackButton(Boolean flag){
 
-        Button backbutton=(Button) findViewById(R.id.backward);
-          backbutton.setClickable(flag);
+       if (flag) {
+           Button backbutton=(Button) findViewById(R.id.backward);
+           backbutton.setClickable(true);
+//           backbutton.setTextColor(getResources().getColor(R.color.disabledbutton_fontcolor));
+       } else {
+           Button backbutton=(Button) findViewById(R.id.backward);
+           backbutton.setClickable(false);
+        //   backbutton.setTextColor(getResources().getColor(R.color.button_back_fontcolor));
+       }
+
 
     }
     private void switchForwardButton(Boolean flag){
-
-        Button forwardbutton=(Button) findViewById(R.id.forward);
-        forwardbutton.setClickable(flag);
+        if (flag) {
+            Button forwardbutton = (Button) findViewById(R.id.forward);
+            forwardbutton.setClickable(true);
+       //   forwardbutton.setTextColor(getResources().getColor(R.color.disabledbutton_fontcolor));
+        }
+        else {
+            Button forwardbutton = (Button) findViewById(R.id.forward);
+            forwardbutton.setClickable(true);
+        //   forwardbutton.setTextColor("#686666");
+        }
     }
 }
