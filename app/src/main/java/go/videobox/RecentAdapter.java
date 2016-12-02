@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -22,9 +23,9 @@ import java.util.ArrayList;
 class RecentAdapter extends BaseAdapter {
 
     Context context;
-    ArrayList<Item> items;
+    ArrayList<DbItem> items;
     private static LayoutInflater inflater=null;
-    RecentAdapter(Context context, ArrayList<Item> items) {
+    RecentAdapter(Context context, ArrayList<DbItem> items) {
         this.context=context;
         this.items=items;
     }
@@ -50,11 +51,13 @@ class RecentAdapter extends BaseAdapter {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.griditem, parent, false);
+            convertView = inflater.inflate(R.layout.griditemrecent, parent, false);
         }
 
         ImageView imageView = (ImageView) convertView.findViewById(R.id.imageView1);
         TextView header = (TextView) convertView.findViewById(R.id.header);
+
+
        // TextView subheader = (TextView) convertView.findViewById(R.id.subheader);
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(context));
@@ -63,10 +66,15 @@ class RecentAdapter extends BaseAdapter {
                 .cacheInMemory()
                 .cacheOnDisc()
                 .build();
-        imageLoader.displayImage(items.get(position).pictureurl, imageView, options);
-        header.setText(items.get(position).header);
+        imageLoader.displayImage(items.get(position).mPosterUrl, imageView, options);
+        header.setText(items.get(position).mHeader);
+            
+
+
      //   subheader.setText(items.get(position).subheader);
         return convertView;
     }
 
+
 }
+

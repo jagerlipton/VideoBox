@@ -5,17 +5,17 @@ import java.io.Serializable;
 
 public class Item  implements Serializable {
 
-    String header;
-    String subheader;
-    String pictureurl;
-    String quality;
-    String year;
-    String audio;
-    String duration;
-    String pagelink;
+    public  String header;
+    public  String subheader;
+    public  String pictureurl;
+    public String quality;
+    public String year;
+    public  String audio;
+    public  String duration;
+    public String pagelink;
 
 
-    Item(String h, String s, String u, String q, String y, String a,String d,String p){
+   public Item(String h, String s, String u, String q, String y, String a,String d,String p){
         this.header=h;
         this.subheader=s;
         this.pictureurl=u;

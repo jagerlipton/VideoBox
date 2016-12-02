@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.2"
@@ -31,4 +36,7 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.6.0@aar') {
         transitive = true
     }
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+   // compile files('libs/taskmanager.jar')
+
 }

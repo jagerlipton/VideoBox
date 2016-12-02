@@ -2,7 +2,7 @@
     <string name="app_name">ЙО-ХО-ХО</string>
     <string name="button_back">Назад</string>
     <string name="button_forward">Вперед</string>
-
+    <string name="recentmenu_delete">Удалить фильм</string>
 
     <string name="drawer_item_category">Категории</string>
     <string name="drawer_item_year">По году</string>

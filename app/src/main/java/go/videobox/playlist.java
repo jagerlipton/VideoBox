@@ -16,6 +16,10 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import java.util.ArrayList;
+import java.util.Date;
+
+import go.videobox.dbClass.FilmData;
+import go.videobox.dbClass.FilmHeader;
 
 public class playlist extends AppCompatActivity {
     private ArrayList<PlaylistItem> playList = new ArrayList<>();
@@ -39,7 +43,7 @@ public class playlist extends AppCompatActivity {
             list.setAdapter(new MyListAdapter(this, playList));
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (position >= 0) startplayer(playList.get(position).url);
+                    if (position >= 0) startplayer(playList.get(position).mUrl);
                 }
             });
         }
@@ -66,6 +70,9 @@ public class playlist extends AppCompatActivity {
     }
 
     private void startplayer(String flvurl){
+
+        MainActivity.checkWatchSerialFilm(poster_header,poster_url,flvurl,poster_sub_header);
+
         Intent playerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(flvurl));
         startActivity(playerIntent);
     }

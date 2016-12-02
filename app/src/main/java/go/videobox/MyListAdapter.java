@@ -6,6 +6,7 @@ package go.videobox;
         import android.view.ViewGroup;
         import android.widget.BaseAdapter;
         import android.widget.ImageView;
+        import android.widget.ProgressBar;
         import android.widget.TextView;
 
         import java.util.ArrayList;
@@ -50,12 +51,17 @@ public class MyListAdapter extends BaseAdapter {
         TextView header = (TextView) someView.findViewById(R.id.item_headerText);
         TextView subHeader = (TextView) someView.findViewById(R.id.item_subHeaderText);
         header.setTextColor(context.getResources().getColor(R.color.header_font_color));
-        header.setText(data.get(i).header);
+        header.setText(data.get(i).mSubHeader);
         subHeader.setTextColor(context.getResources().getColor(R.color.sub_header_font_color));
-        subHeader.setText(data.get(i).subheader);
-
-
+        subHeader.setText(data.get(i).mSubsubHeader);
+        ProgressBar pb = (ProgressBar) someView.findViewById(R.id.progress);
+        pb.setProgress(positionfilm(data.get(i).mPosition,data.get(i).mDuration));
+        TextView progresstext = (TextView) someView.findViewById(R.id.tv_progress);
+        progresstext.setText(Integer.toString(positionfilm(data.get(i).mPosition,data.get(i).mDuration))+"%");
         return someView;
     }
-
+    private static Integer positionfilm (Integer pos, Integer dur){
+        if ((pos==0)&&(dur==0))return 0;
+        return  (int)(((double)pos/(double)dur) * 100);
+    }
 }

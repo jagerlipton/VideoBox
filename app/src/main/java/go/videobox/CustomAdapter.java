@@ -19,12 +19,12 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import java.util.ArrayList;
 
-class CustomAdapter extends BaseAdapter {
+public class CustomAdapter extends BaseAdapter {
 
     Context context;
     ArrayList<Item> items;
     private static LayoutInflater inflater=null;
-    CustomAdapter(Context context, ArrayList<Item> items) {
+    public  CustomAdapter(Context context, ArrayList<Item> items) {
         this.context=context;
         this.items=items;
     }

@@ -10,6 +10,8 @@ public final class AsyncTaskManager implements IProgressTracker, OnCancelListene
     private final OnTaskCompleteListener mTaskCompleteListener;
     private final ProgressDialog mProgressDialog;
     private Task mAsyncTask;
+    private OpenKinogoPageTask mOpenKinogoPageTask;
+
 
     public AsyncTaskManager(Context context, OnTaskCompleteListener taskCompleteListener) {
         // Save reference to complete listener (activity)
@@ -28,6 +30,8 @@ public final class AsyncTaskManager implements IProgressTracker, OnCancelListene
         mAsyncTask.setProgressTracker(this);
         // Start task
         mAsyncTask.execute();
+
+        //здесь сделать список из таск execute и по условиям их запускать.
     }
 
     @Override
@@ -69,13 +73,13 @@ public final class AsyncTaskManager implements IProgressTracker, OnCancelListene
         return mAsyncTask;
     }
 
-    public void handleRetainedTask(Object instance) {
+   /* public void handleRetainedTask(Object instance) {
         // Restore retained task and attach it to tracker (this)
         if (instance instanceof Task) {
             mAsyncTask = (Task) instance;
             mAsyncTask.setProgressTracker(this);
         }
-    }
+    }*/
 
     public boolean isWorking() {
         // Track current status

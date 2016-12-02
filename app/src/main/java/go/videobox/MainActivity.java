@@ -1,6 +1,11 @@
 package go.videobox;
 
 import go.videobox.Mathem;
+import go.videobox.core.AsyncTaskManager;
+import go.videobox.core.OpenKinogoPageTask;
+import go.videobox.dbClass.FilmData;
+import go.videobox.dbClass.FilmHeader;
+
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -33,6 +38,13 @@ import android.widget.Toast;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
+import com.activeandroid.query.Update;
 import com.mikepenz.fastadapter.utils.RecyclerViewCacheUtil;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -58,17 +70,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
 
-   private final static String searchpagelink="http://kinogo.club/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&titleonly=3&story=";
-    private  String back_pagelink="";
-    private  String forward_pagelink="";
+    private final static String searchpagelink="http://kinogo.club/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&titleonly=3&story=";
+   // private  String back_pagelink="";
+  //  private  String forward_pagelink="";
 
     String poster_url="";
     String poster_header="";
@@ -83,18 +101,174 @@ public class MainActivity extends AppCompatActivity {
     private IProfile profile_kinokrad;
     private static final int PROFILE_SETTING = 1;
 
-    private  ArrayList<Item> arrayList = new ArrayList<>();
-    private  ArrayList<PlaylistItem> playList = new ArrayList<>();
+    public static  ArrayList<Item> arrayList = new ArrayList<>();
+    public static  ArrayList<PlaylistItem> playList = new ArrayList<>();
     ListView listView;
     GridView gv;
     Context context;
-
-
+    private AsyncTaskManager mAsyncTaskManager;
 
 
     ///Log.d("ololo",  Integer.toString(i));
     //  Toast.makeText(MainActivity.this, Integer.toString(i), Toast.LENGTH_SHORT).show();
     //System.out.println(st);
+
+    //==============работа с МХ плеером
+
+    public static final String RESULT_VIEW				= "com.mxtech.intent.result.VIEW";
+    public static final String EXTRA_POSITION			= "position";
+    public static final String EXTRA_RETURN_RESULT		= "return_result";
+    public static final String EXTRA_DURATION			= "duration";
+    public static final String EXTRA_END_BY				= "end_by";
+    public static final int RESULT_ERROR				= Activity.RESULT_FIRST_USER + 0;
+    private static final String 	PACKAGE_NAME_AD 		= "com.mxtech.videoplayer.ad";
+    private static final String 	PLAYBACK_ACTIVITY_AD	= "com.mxtech.videoplayer.ad.ActivityScreen";
+    public static final int REQUEST_CODE = 0x8001;
+
+    private static void dumpParams( Intent intent )
+    {
+        StringBuilder sb = new StringBuilder();
+        Bundle extras = intent.getExtras();
+
+        sb.setLength(0);
+        sb.append("* dat=").append(intent.getData());
+      //  Log.v("ololo", sb.toString());
+
+        sb.setLength(0);
+        sb.append("* typ=").append(intent.getType());
+      //  Log.v("ololo", sb.toString());
+
+        if( extras != null && extras.size() > 0 )
+        {
+            sb.setLength(0);
+
+            Integer p=1;
+            Integer d=1;
+            int i = 0;
+            for( String key : extras.keySet() )
+            {
+              if (key.equals("duration")){
+
+                  sb.setLength(0);
+                  appendDetails( sb, extras.get( key ) );
+                  String duration =sb.toString();
+                   d= Integer.parseInt(duration);
+                // / Log.v("ololo1", d.toString());
+
+              }
+                if (key.equals("position")){
+                    sb.setLength(0);
+                    appendDetails( sb, extras.get( key ) );
+                    String position =sb.toString();
+                     p= Integer.parseInt(position);
+                  //  Log.v("ololo1", p.toString());
+                }
+
+            }
+            positionfilm(p,d);
+           // Log.v("ololo1",positionfilm(p,d).toString());
+
+        }
+    }
+
+    public static Integer positionfilm (Integer pos, Integer dur){
+                return  (int)(((double)pos/(double)dur) * 100);
+    }
+
+    private static void appendDetails( StringBuilder sb, Object object )
+    {
+        if( object != null && object.getClass().isArray() )
+        {
+            sb.append('[');
+
+            int length = Array.getLength(object);
+            for( int i = 0; i < length; ++i )
+            {
+                if( i > 0 )
+                    sb.append(", ");
+
+                appendDetails(sb, Array.get(object, i));
+            }
+
+            sb.append(']');
+        }
+        else if( object instanceof Collection)
+        {
+            sb.append('[');
+
+            boolean first = true;
+            for( Object element : (Collection)object )
+            {
+                if( first )
+                    first = false;
+                else
+                    sb.append(", ");
+
+                appendDetails(sb, element);
+            }
+
+            sb.append(']');
+        }
+        else
+            sb.append(object);
+    }
+
+
+    @Override
+    protected void onActivityResult( int requestCode, int resultCode, Intent data )
+    {
+        if( requestCode == REQUEST_CODE )
+        {
+            switch( resultCode )
+            {
+                case RESULT_OK:
+                //    Log.i( "ololo", "Ok: " + data );
+                    break;
+
+                case RESULT_CANCELED:
+               //     Log.i( "ololo", "Canceled: " + data );
+                    break;
+
+                case RESULT_ERROR:
+                //    Log.e( "ololo", "Error occurred: " + data );
+                    break;
+
+                default:
+                 //   Log.w( "ololo", "Undefined result code (" + resultCode  + "): " + data );
+                    break;
+            }
+
+            if( data != null )
+                dumpParams(data);
+
+			/*
+			 * (YOUR CODE HERE) Handle result.
+			 */
+
+            finish();
+        }
+        else
+            super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    private void startplayer(String flvurl){
+      Intent playerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(flvurl));
+       playerIntent.putExtra(EXTRA_RETURN_RESULT, true);
+       startActivityForResult(playerIntent,REQUEST_CODE);
+
+
+           }
+
+
+
+
+    //==============================================================
+
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -161,7 +335,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActiveAndroid.initialize(this);
 
+      //  mAsyncTaskManager = new AsyncTaskManager(this, this);
+     //   mAsyncTaskManager.handleRetainedTask(getLastNonConfigurationInstance());
 
         gv=(GridView) findViewById(R.id.gridView1);
 
@@ -301,8 +478,8 @@ public class MainActivity extends AppCompatActivity {
 
         new RecyclerViewCacheUtil<IDrawerItem>().withCacheSize(2).apply(drawerresult.getRecyclerView(), drawerresult.getDrawerItems());
 
-        openpage(getResources().getString(R.string.link_item_startpage));
-
+      openpage(getResources().getString(R.string.link_item_startpage));
+      // mAsyncTaskManager.setupTask(new OpenKinogoPageTask(getResources()));
 
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -311,6 +488,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+
+
+
     }
 
     @Override
@@ -318,6 +499,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
     }
+
+
 
     //=======================================================================================
 
@@ -332,6 +515,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
       //  Log.d("ololo", );
     }
 
@@ -341,7 +525,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void openpage(String link){
-          new OpenKinogoPage().execute(link);
+       //   new OpenKinogoPage().execute(link);
+        new OpenKinogoPageTask(this).execute(link);
 
     }
 
@@ -350,16 +535,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void startplayer(String flvurl){
-        Intent playerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(flvurl));
-        startActivity(playerIntent);
-    }
-
-
     private void showRecent(){
         Intent recent = new Intent(MainActivity.this, RecentActivity.class );
         startActivity(recent);
-    }
+
+       // Log.d("ololo",  Integer.toString(new Select().from(DbItem.class).count()));
+
+      //  recent.putExtra("headshot",mDbItem.mHeader);
+
+
+
+
+
+    //   new Delete().from(FilmHeader.class).where("_id = ?", 1).execute();
+  //   new Delete().from(FilmData.class).where("_id = ?", 1).execute();
+      //  new Delete().from(FilmHeader.class).where("_id = ?", 2).execute();
+     //   new Delete().from(FilmData.class).where("_id = ?", 2).execute();
+
+        }
+
+
+
 
 
     private void viewSeriesList(){
@@ -437,30 +633,103 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+
+
+
         protected void onPostExecute(String flvurl) {
             super.onPostExecute(flvurl);
-          if (flvurl.indexOf(".flv")>0) startplayer(flvurl); //если прямой линн, запускаем плеер
-                  else if (flvurl.indexOf(".txt")>0)  new getPlaylist().execute(flvurl); // если  плейлист, получаем лист
+          if (flvurl.indexOf(".flv")>0){
+
+              checkWatchSingleFilm(poster_header,poster_url,flvurl);
+
+
+
+              startplayer(flvurl); //если прямой линн, запускаем плеер
+          }
+                  else if (flvurl.indexOf(".txt")>0){
+
+              new getPlaylist().execute(flvurl); // если  плейлист, получаем лист
+          }
 
              }
     }
 
+
+    public void checkWatchSingleFilm (String myHeader, String myPosterUrl, String myUrl){
+
+        FilmHeader sHeader = new FilmHeader();
+        FilmData sData = new FilmData();
+
+        if (!sHeader.checkExistsDbItem(myHeader)) {
+            sHeader.mHeader = myHeader;
+            sHeader.mPosterUrl = myPosterUrl;
+            sHeader.mSerialFlag = false;
+            sHeader.mUrl = myUrl;
+            sHeader.mDateWatch = new Date();
+            sHeader.save();
+
+            sData.mSubHeader="";
+            sData.mUrl=myUrl;
+            sData.mDuration=0;
+            sData.mPosition=0;
+            sData.myFilmHeader=sHeader;
+            sData.save();
+        }
+
+        else {
+            sHeader.updateDate(myHeader);
+            Log.d("ololo", "обновили");
+        }
+    }
+
+    public static void checkWatchSerialFilm (String myHeader, String myPosterUrl, String myUrl,String mySubHeader){
+
+        FilmHeader sHeader = new FilmHeader();
+        FilmData sData = new FilmData();
+
+        if (!sHeader.checkExistsDbItem(myHeader)) {
+            sHeader.mHeader = myHeader;
+            sHeader.mPosterUrl = myPosterUrl;
+            sHeader.mSerialFlag = true;
+            sHeader.mUrl = myUrl;
+            sHeader.mDateWatch = new Date();
+            sHeader.save();
+
+            sData.mSubHeader=mySubHeader;
+            sData.mUrl=myUrl;
+            sData.mDuration=0;
+            sData.mPosition=0;
+            sData.myFilmHeader=sHeader;
+            sData.save();
+        }
+
+        else {
+            sHeader.updateDate(myHeader);
+            Log.d("ololo", "обновили");
+        }
+    }
+
   //===========парсинг строк из плейлиста тхт
 
-    private PlaylistItem parsePlaylistLine(String s){
-        PlaylistItem pItem= new PlaylistItem("","","","");
+    private PlaylistItem parsePlaylistLine(String s,String sHeader, String sPosterUrl){
+        PlaylistItem pItem= new PlaylistItem("","",true,"","","",0,0);
+        pItem.mDuration=0;
+        pItem.mPosition=0;
+        pItem.mHeader=sHeader;
+        pItem.mPosterUrl=sPosterUrl;
 
         if ((s.indexOf("comment")>0)&&(s.indexOf("<br>")<(s.indexOf("\",\"file\":\""))&&(s.indexOf("<br>")>0))) {
-            pItem.header=s.substring(s.indexOf(":")+2,s.indexOf("<br>"));
-            pItem.subheader = s.substring(s.indexOf("<br>") + 4, s.indexOf("\",\"file\":\""));
-            pItem.url=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
+            pItem.mSubHeader=s.substring(s.indexOf(":")+2,s.indexOf("<br>"));
+            pItem.mSubsubHeader = s.substring(s.indexOf("<br>") + 4, s.indexOf("\",\"file\":\""));
+            pItem.mUrl=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
+
         }
         else if ((s.indexOf("comment")>0)&&(!s.contains("<br>"))) {
-        pItem.header=s.substring(s.indexOf("{\"comment\":\"")+12,s.indexOf("\",\"file\":\""));
+        pItem.mSubHeader=s.substring(s.indexOf("{\"comment\":\"")+12,s.indexOf("\",\"file\":\""));
 
-            System.out.println(pItem.header);
-          pItem.subheader = "";
-         pItem.url=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
+            System.out.println(pItem.mSubHeader);
+          pItem.mSubsubHeader = "";
+         pItem.mUrl=s.substring(s.indexOf("\",\"file\":\"")+10,s.indexOf("\"}"));
         }
 
         return pItem;
@@ -480,10 +749,10 @@ public class MainActivity extends AppCompatActivity {
                 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 String str;
 
-                PlaylistItem pItem = new PlaylistItem("","","","");
+                PlaylistItem pItem = new PlaylistItem("","",false,"","","",0,0);
                 while ((str = in.readLine()) != null) {
                     result += str;
-                    if ((!str.isEmpty())&&(str.indexOf("comment")>0)){ playList.add(parsePlaylistLine(str));  }
+                    if ((!str.isEmpty())&&(str.indexOf("comment")>0)){ playList.add(parsePlaylistLine(str,poster_header,poster_url));  }
 
                 }
                 in.close();
@@ -600,9 +869,9 @@ public class MainActivity extends AppCompatActivity {
                 Elements buttons = document.select(".bot-navigation"); // получение ссылок на кнопки назад-вперед
                 for(Element button:buttons){
                     Element link1= button.select("a").first();
-                    back_pagelink = link1.attr("href");
+                    GlobalData.Gd_back_pagelink = link1.attr("href");
                     Element link2= button.select("a").last();
-                    forward_pagelink = link2.attr("href");
+                    GlobalData.Gd_forward_pagelink = link2.attr("href");
                 }
 
                 Element span= buttons.select("span").first();
@@ -639,11 +908,11 @@ public class MainActivity extends AppCompatActivity {
     }
     public void back_click (View v) {
 
-        openpage(back_pagelink);
+        openpage(GlobalData.Gd_back_pagelink);
     }
     public void forward_click (View v) {
 
-       openpage(forward_pagelink);
+       openpage(GlobalData.Gd_forward_pagelink);
     }
 
     private void switchBackButton(Boolean flag){
@@ -672,4 +941,13 @@ public class MainActivity extends AppCompatActivity {
         //   forwardbutton.setTextColor("#686666");
         }
     }
+
+    //===========db work
+
+
+
+
+
+    //==================
+
 }

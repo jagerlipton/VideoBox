@@ -5,17 +5,27 @@ import java.io.Serializable;
 
 public class PlaylistItem  implements Serializable {
 
-    String header;
-    String subheader;
-    String url;
-    String poster;
+    public String mHeader;
+    public String mPosterUrl;
+    public Boolean mSerialFlag;
+    public String mUrl;
+    public String mSubHeader;
+    public String mSubsubHeader;
+    public Integer mDuration;
+    public Integer mPosition;
 
 
-    PlaylistItem(String h, String s, String u, String p){
-        this.header=h;
-        this.subheader=s;
-        this.url=u;
-        this.poster=p;
+
+    public PlaylistItem(String mHeader, String mPosterUrl, Boolean mSerialFlag, String mUrl, String mSubHeader, String mSubsubHeader, Integer mDuration,Integer mPosition){
+        this.mHeader=mHeader;
+        this.mPosterUrl=mPosterUrl;
+        this.mSerialFlag=mSerialFlag;
+        this.mUrl=mUrl;
+        this.mSubHeader=mSubHeader;
+        this.mSubsubHeader=mSubsubHeader;
+        this.mDuration=mDuration;
+        this.mPosition=mPosition;
+
     }
 
 }
