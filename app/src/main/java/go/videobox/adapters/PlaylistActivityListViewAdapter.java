@@ -1,22 +1,25 @@
-package go.videobox;
+package go.videobox.adapters;
 
-        import android.content.Context;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.BaseAdapter;
-        import android.widget.ImageView;
-        import android.widget.ProgressBar;
-        import android.widget.TextView;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-        import java.util.ArrayList;
+import java.util.ArrayList;
 
-public class MyListAdapter extends BaseAdapter {
+import go.videobox.R;
+
+
+
+public class PlaylistActivityListViewAdapter extends BaseAdapter {
 
     private ArrayList<PlaylistItem> data = new ArrayList<>();
     private Context context;
 
-    public MyListAdapter(Context context, ArrayList<PlaylistItem> arr) {
+    public PlaylistActivityListViewAdapter(Context context, ArrayList<PlaylistItem> arr) {
         if (arr != null) {
             data = arr;
         }
@@ -47,7 +50,7 @@ public class MyListAdapter extends BaseAdapter {
         if (someView == null) {
             someView = inflater.inflate(R.layout.list_view_item, arg2, false);
         }
-       // ImageView imageView = (ImageView) someView.findViewById(R.id.img);
+        // ImageView imageView = (ImageView) someView.findViewById(R.id.img);
         TextView header = (TextView) someView.findViewById(R.id.item_headerText);
         TextView subHeader = (TextView) someView.findViewById(R.id.item_subHeaderText);
         header.setTextColor(context.getResources().getColor(R.color.header_font_color));
@@ -65,3 +68,4 @@ public class MyListAdapter extends BaseAdapter {
         return  (int)(((double)pos/(double)dur) * 100);
     }
 }
+

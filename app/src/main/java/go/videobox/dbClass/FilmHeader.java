@@ -5,16 +5,10 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.activeandroid.query.Update;
-
 import java.util.Date;
 import java.util.List;
 
-import go.videobox.DbItem;
 
-
-/**
- * Created by 111 on 30.11.2016.
- */
 
     @Table(name = "Films",id = "_id")
     public class FilmHeader extends Model {
@@ -68,15 +62,53 @@ import go.videobox.DbItem;
     public  List<FilmHeader> getFifty() {
             return  new Select().from(FilmHeader.class).limit(50).orderBy("DateWatch DESC").execute();
     }
-    private static FilmHeader selectField(String fieldName, String fieldValue) {
+    public static FilmHeader selectField(String fieldName, String fieldValue) {
         return new Select().from(FilmHeader.class)
                 .where(fieldName + " = ?", fieldValue).executeSingle();
     }
 
+
     public  void updateDate(String myHeader) {
-           FilmHeader model = selectField("Header", myHeader);
+        FilmHeader model = selectField("Header", myHeader);
         model.mDateWatch = new Date ();
         model.save();
+    }
+
+    public  void updatePositionFilm(String myHeader,String mySubHeader,Integer myPos,Integer myDur ) {
+        FilmHeader model = selectField("Header", myHeader);
+        if (model.mSerialFlag) {
+            List<FilmData> dlist = model.getFilmList();
+            if (dlist.size() > 0)
+                for (FilmData data : dlist) {
+                    data.mDuration = myPos;
+                    data.mPosition = myDur;
+                    data.save();
+                }
+        } else { //если сериал
+            List<FilmData> dlist = model.getFilmList();
+            if (dlist.size() > 0)
+                for (FilmData data : dlist)     if (data.mSubHeader.equals(mySubHeader)) {
+                    data.mDuration = myPos;
+                    data.mPosition = myDur;
+                    data.save();
+                }
+        }
+
+
+
+        List<FilmData> dlist = model.getFilmList();
+        if (dlist.size()>0) {
+            for (FilmData data: dlist) {
+                if (data.mSubHeader.equals(mySubHeader)) {
+                    data.mDuration = myPos;
+                    data.mPosition = myDur;
+                    data.save();
+
+                }
+            }
+        }
+
+
     }
 
     }

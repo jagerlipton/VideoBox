@@ -19,7 +19,7 @@
         <meta-data android:name="AA_DB_VERSION" android:value="1" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="com.myapp.model.FilmHeader, com.myapp.model.FilmData" />
+            android:value="go.videobox.dbClass.FilmHeader, go.videobox.dbClass.FilmData" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".FilmActivity" />
-        <activity android:name=".playlist" />
+        <activity android:name=".PlaylistActivity" />
         <activity android:name=".RecentActivity"/>
     </application>
 

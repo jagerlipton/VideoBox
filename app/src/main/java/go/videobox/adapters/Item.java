@@ -1,4 +1,4 @@
-package go.videobox;
+package go.videobox.adapters;
 
 
 import java.io.Serializable;

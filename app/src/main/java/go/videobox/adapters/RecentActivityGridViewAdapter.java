@@ -1,30 +1,26 @@
-package go.videobox;
-
-//Custom grid adapter with image (get url)
-
+package go.videobox.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-
 import java.util.ArrayList;
+import go.videobox.R;
 
-public class CustomAdapter extends BaseAdapter {
+public class RecentActivityGridViewAdapter extends BaseAdapter {
 
     Context context;
-    ArrayList<Item> items;
+   public  ArrayList<RecentGridItem> items;
     private static LayoutInflater inflater=null;
-    public  CustomAdapter(Context context, ArrayList<Item> items) {
+
+ public   RecentActivityGridViewAdapter(Context context, ArrayList<RecentGridItem> items) {
         this.context=context;
         this.items=items;
     }
@@ -50,12 +46,14 @@ public class CustomAdapter extends BaseAdapter {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.griditem, parent, false);
-             }
+            convertView = inflater.inflate(R.layout.griditemrecent, parent, false);
+        }
 
         ImageView imageView = (ImageView) convertView.findViewById(R.id.imageView1);
         TextView header = (TextView) convertView.findViewById(R.id.header);
-        TextView subheader = (TextView) convertView.findViewById(R.id.subheader);
+
+
+        // TextView subheader = (TextView) convertView.findViewById(R.id.subheader);
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(context));
         DisplayImageOptions options = new DisplayImageOptions.Builder()
@@ -63,10 +61,15 @@ public class CustomAdapter extends BaseAdapter {
                 .cacheInMemory()
                 .cacheOnDisc()
                 .build();
-        imageLoader.displayImage(items.get(position).pictureurl, imageView, options);
-        header.setText(items.get(position).header);
-        subheader.setText(items.get(position).subheader);
+        imageLoader.displayImage(items.get(position).mPosterUrl, imageView, options);
+        header.setText(items.get(position).mHeader);
+
+
+
+        //   subheader.setText(items.get(position).subheader);
         return convertView;
     }
 
+
 }
+

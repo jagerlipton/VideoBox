@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import go.videobox.adapters.RecentActivityGridViewAdapter;
+import go.videobox.adapters.RecentGridItem;
 import go.videobox.dbClass.FilmData;
 import go.videobox.dbClass.FilmHeader;
 
 public class RecentActivity extends AppCompatActivity {
-     ArrayList<DbItem> arrayList1 = new ArrayList<>();
+     ArrayList<RecentGridItem> arrayList1 = new ArrayList<>();
     GridView gv;
     List<FilmData> FilmlistData;
 
@@ -56,11 +58,11 @@ public class RecentActivity extends AppCompatActivity {
         List<FilmHeader> queryResults =sHead.getFifty();
 
 
-        DbItem tempitem = new DbItem("","",false,"","",0,0,new Date());//создание массива плиток фильмов
+        RecentGridItem tempitem = new RecentGridItem("","",false,"","",0,0,new Date());//создание массива плиток фильмов
     for (FilmHeader film:queryResults) {
 
 
-        tempitem = new DbItem("","",false,"","",0,0,new Date());
+        tempitem = new RecentGridItem("","",false,"","",0,0,new Date());
         tempitem.mHeader=film.mHeader;
         tempitem.mPosterUrl=film.mPosterUrl;
         tempitem.mSerialFlag=film.mSerialFlag;
@@ -75,8 +77,8 @@ public class RecentActivity extends AppCompatActivity {
 
 
 
-        for (DbItem itemmm :arrayList1)    System.out.println(itemmm.mDateWatch);
-    RecentAdapter adapter = new RecentAdapter (RecentActivity.this, arrayList1);
+        for (RecentGridItem itemmm :arrayList1)    System.out.println(itemmm.mDateWatch);
+        RecentActivityGridViewAdapter adapter = new RecentActivityGridViewAdapter (RecentActivity.this, arrayList1);
 
 
        gv.setAdapter(adapter);
@@ -121,7 +123,7 @@ public class RecentActivity extends AppCompatActivity {
     }
 
     private void clickrecentgrid(Integer position){
-        DbItem item;
+        RecentGridItem item;
         item=arrayList1.get(position);
        if (!item.mSerialFlag){
           startplayer(item.mUrl);
@@ -134,7 +136,7 @@ public class RecentActivity extends AppCompatActivity {
     }
     private void delete_recent_item(Integer position){
 
-        RecentAdapter adapter = new RecentAdapter (RecentActivity.this, arrayList1);
+        RecentActivityGridViewAdapter adapter = new RecentActivityGridViewAdapter (RecentActivity.this, arrayList1);
         gv.setAdapter(adapter);
 
 

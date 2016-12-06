@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,5 +38,19 @@ public class FilmData extends Model {
     public  FilmData () {
         super ();
     }
+
+    public  void updatePosition(String myHeader) {
+        FilmData model = selectField("SubHeader", myHeader);
+
+        model.mPosition = 50;
+        model.mDuration=100;
+        model.save();
+    }
+
+    public static FilmData selectField(String fieldName, String fieldValue) {
+        return new Select().from(FilmData.class)
+                .where(fieldName + " = ?", fieldValue).executeSingle();
+    }
+
 }
 

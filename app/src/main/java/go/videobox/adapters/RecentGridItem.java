@@ -1,10 +1,11 @@
-package go.videobox;
-
+package go.videobox.adapters;
 
 import java.io.Serializable;
 import java.util.Date;
 
-public class DbItem  implements Serializable {
+
+
+public class RecentGridItem  implements Serializable {
 
     public String mHeader;
     public String mPosterUrl;
@@ -17,7 +18,7 @@ public class DbItem  implements Serializable {
 
 
 
-    public DbItem(String h, String s, Boolean u, String q, String y, Integer a,Integer d,Date ww){
+    public RecentGridItem(String h, String s, Boolean u, String q, String y, Integer a,Integer d,Date ww){
         this.mHeader=h;
         this.mPosterUrl=s;
         this.mSerialFlag=u;

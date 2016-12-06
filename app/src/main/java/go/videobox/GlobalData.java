@@ -2,6 +2,8 @@ package go.videobox;
 
 import java.util.ArrayList;
 
+import go.videobox.adapters.Item;
+
 /**
  * Created by 111 on 25.11.2016.
  */
