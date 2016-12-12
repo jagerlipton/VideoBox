@@ -5,25 +5,24 @@ import java.io.Serializable;
 
 public class Item  implements Serializable {
 
-    public  String header;
-    public  String subheader;
-    public  String pictureurl;
-    public String quality;
-    public String year;
-    public  String audio;
-    public  String duration;
-    public String pagelink;
+    public  String mHeader;   //название фильма
+    public  String mProfile; // название сайта профайла
+    public  String mSubHeader; //  описание фильма
+    public  String mPictureurl; //  линк постера
+    public  Integer mDuration; //  длительность
+    public  Integer mPosition; //  позиция
+    public String mPagelink; //  линк страницы с плеером
 
 
-   public Item(String h, String s, String u, String q, String y, String a,String d,String p){
-        this.header=h;
-        this.subheader=s;
-        this.pictureurl=u;
-        this.quality=q;
-        this.year=y;
-        this.audio=a;
-        this.duration=d;
-        this.pagelink=p;
+   public Item(String mHeader, String mSubHeader, String mPictureurl, Integer mPosition, Integer mDuration,  String mPagelink,String mProfile){
+        this.mHeader=mHeader;
+        this.mSubHeader=mSubHeader;
+        this.mPictureurl=mPictureurl;
+        this.mDuration=mDuration;
+        this.mPosition=mPosition;
+        this.mPagelink=mPagelink;
+        this.mProfile=mProfile;
+
     }
 
  }

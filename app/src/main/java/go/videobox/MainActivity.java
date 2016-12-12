@@ -10,15 +10,20 @@ import go.videobox.base.ITaskLoaderListener;
 import go.videobox.assynctasks.OpenKinogoPageTask;
 import go.videobox.dbClass.FilmData;
 import go.videobox.dbClass.FilmHeader;
+import go.videobox.dbClass.WorkWithDB;
 
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
@@ -44,21 +49,25 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements ITaskLoaderListener {
 
-
-    // private  String back_pagelink="";
-  //  private  String forward_pagelink="";
-
     static String poster_url=""; //  ссылка на постер картинку
     static  String poster_header="";// название фильма
     static  String poster_sub_header="";// описание фильма
+    private final static String userAgent = "Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36";
 
 
     private AccountHeader headerResult = null;
@@ -72,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
 
     public static  ArrayList<Item> arrayList = new ArrayList<>();
     public static  ArrayList<PlaylistItem> playList = new ArrayList<>();
+
+    public String site_profile;
+
      GridView gv;
 
 
@@ -89,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
     public static final int RESULT_ERROR				= Activity.RESULT_FIRST_USER + 0;
     private static final String 	PACKAGE_NAME_AD 		= "com.mxtech.videoplayer.ad";
     private static final String 	PLAYBACK_ACTIVITY_AD	= "com.mxtech.videoplayer.ad.ActivityScreen";
-    public static final int REQUEST_CODE = 0x8001;
+    private static final int REQUEST_CODE = 0x8001;
 
 
 
@@ -121,13 +133,14 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
               }
               if (((Bundle) data).getString("header").equals("GetPlaylistKinogo")) {
                   playList = (ArrayList<PlaylistItem>) ((Bundle) data).getSerializable("GetPlaylistKinogo");
-                  viewSeriesList(); // передаем в интент данные и открываем активити плейлиста
+                  String txturl = (((Bundle) data).getString("txt"));
+                  viewSeriesList(txturl); // передаем в интент данные и открываем активити плейлиста
               }
               if (((Bundle) data).getString("header").equals("GetPlayerKinogo")) {
                   String urlplayer = ((Bundle) data).getString("GetPlayerKinogo");
 
                   if (urlplayer.indexOf(".flv")>0){
-                      checkWatchSingleFilm(poster_header,poster_url,urlplayer);
+                      WorkWithDB.checkWatchSingleFilm(poster_header,poster_url,urlplayer,poster_sub_header);
                       startplayer(urlplayer); //если прямой линн, запускаем плеер
                   }
                   else if (urlplayer.indexOf(".txt")>0){
@@ -135,101 +148,13 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
                       myb.putString("urlpage",urlplayer);
                       myb.putString("poster_header",poster_header);
                       myb.putString("poster_url",poster_url);
+
                       GetPlaylistKinogo.execute(this, this,myb);
                   }
               }
-
-
-//
-
         }
     }
-
-
-    private static void dumpParams( Intent intent )
-    {
-        StringBuilder sb = new StringBuilder();
-        Bundle extras = intent.getExtras();
-
-        sb.setLength(0);
-        sb.append("* dat=").append(intent.getData());
-        sb.setLength(0);
-        sb.append("* typ=").append(intent.getType());
-
-        if( extras != null && extras.size() > 0 )
-        {
-            sb.setLength(0);
-
-            Integer p=1;
-            Integer d=1;
-            int i = 0;
-            for( String key : extras.keySet() )
-            {
-              if (key.equals("duration")){
-
-                  sb.setLength(0);
-                  appendDetails( sb, extras.get( key ) );
-                  String duration =sb.toString();
-                   d= Integer.parseInt(duration);
-              }
-              if (key.equals("position")){
-                    sb.setLength(0);
-                    appendDetails( sb, extras.get( key ) );
-                    String position =sb.toString();
-                     p= Integer.parseInt(position);
-
-              }
-
-            }
-            FilmHeader fs = new FilmHeader();
-            fs.updatePositionFilm(poster_header,"",p,d); //применить позицию к фильму  (не сериалу)
-
-        }
-    }
-
-    public static Integer positionfilm (Integer pos, Integer dur){
-                return  (int)(((double)pos/(double)dur) * 100);
-    }
-
-    private static void appendDetails( StringBuilder sb, Object object )
-    {
-        if( object != null && object.getClass().isArray() )
-        {
-            sb.append('[');
-
-            int length = Array.getLength(object);
-            for( int i = 0; i < length; ++i )
-            {
-                if( i > 0 )
-                    sb.append(", ");
-
-                appendDetails(sb, Array.get(object, i));
-            }
-
-            sb.append(']');
-        }
-        else if( object instanceof Collection)
-        {
-            sb.append('[');
-
-            boolean first = true;
-            for( Object element : (Collection)object )
-            {
-                if( first )
-                    first = false;
-                else
-                    sb.append(", ");
-
-                appendDetails(sb, element);
-            }
-
-            sb.append(']');
-        }
-        else
-            sb.append(object);
-    }
-
-
+//--------------------------------------------------------------------------------------------
     @Override
     protected void onActivityResult( int requestCode, int resultCode, Intent data )
     {
@@ -255,26 +180,23 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
             }
 
             if( data != null )
-                dumpParams(data);
-
-			/*
-			 * (YOUR CODE HERE) Handle result.
-			 */
+                MXPlayerResults.dumpParams(data,poster_header,poster_sub_header);
 
             finish();
         }
         else
             super.onActivityResult(requestCode, resultCode, data);
     }
-
+//---------------------------------------------------------------------------------------------------
 
     private void startplayer(String flvurl){
       Intent playerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(flvurl));
        playerIntent.putExtra(EXTRA_RETURN_RESULT, true);
+
+     //тут где то должно быть восстановление позиции просмотра, но нет ни позиции, ни восстановления
+
        startActivityForResult(playerIntent,REQUEST_CODE);
-
-
-           }
+    }
 
 
 
@@ -288,8 +210,7 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+         getMenuInflater().inflate(R.menu.menu_toolbar, menu);
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -336,8 +257,16 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
                         //if (profile instanceof IDrawerItem && ((IDrawerItem) profile).getIdentifier() == PROFILE_SETTING) {
 
                             if (headerResult.getProfiles() != null) {
-                               if (profile.getName().toString()==("Kinogo.co"))headerResult.setHeaderBackground(new ImageHolder(R.drawable.header));
-                                if (profile.getName().toString()==("Kinokrad.co"))headerResult.setHeaderBackground(new ImageHolder(R.drawable.header2));
+                               if (profile.getName().toString()==("Kinogo.co")){
+                                   headerResult.setHeaderBackground(new ImageHolder(R.drawable.header));
+                                   site_profile="kinogo";
+                                   writeProfileSettings(site_profile);
+                               }
+                                if (profile.getName().toString()==("Kinokrad.co")){
+                                    headerResult.setHeaderBackground(new ImageHolder(R.drawable.header2));
+                                    site_profile="kinokrad";
+                                    writeProfileSettings(site_profile);
+                                }
                         }
 
                                                return false;
@@ -354,18 +283,18 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
         ActiveAndroid.initialize(this);
 
 
-      /*  FilmHeader sHeader = new FilmHeader();
+      FilmHeader sHeader = new FilmHeader();
         List<FilmHeader> setting = sHeader.getFifty();
         for (FilmHeader qitem: setting) {
-            Log.d("ololo", qitem.mHeader + qitem.getId());
-            List<FilmData> slist= qitem.getFilmList();
-            for (FilmData qqq : slist) {
-                Log.d("ololo", qqq.mSubHeader + qqq.getId());
-                qqq.updatePosition(qqq.mSubHeader);
+            Log.d("ololo", qitem.mHeader + " id "+qitem.getId()+ " url  "+ qitem.mUrl);
+          List<FilmData> slist= qitem.getFilmList();
+           for (FilmData qqq : slist) {
+               Log.d("ololo", qqq.mSubHeader+"----"+qqq.mPosition + "  /  "+   qqq.mDuration+"  "+ Mathem.timetohours(qqq.mPosition));
+              // qqq.updatePosition(qqq.mSubHeader);
 
-            }
+           }
         }
-*/
+
 
         gv=(GridView) findViewById(R.id.gridView1);
 
@@ -384,9 +313,15 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
         serials = new ExpandableDrawerItem().withName(R.string.drawer_item_serials).withIdentifier(4).withSelectable(false).withArrowColor(getResources().getColor(R.color.arrows_barcolor));
 
         //выбор сохраненного профиля
-        headerResult.setActiveProfile(profile_kinogo);headerResult.setHeaderBackground(new ImageHolder(R.drawable.header));
-
-
+        readProfileSettings();
+        if (site_profile.equals("kinogo")) {
+            headerResult.setActiveProfile(profile_kinogo);
+            headerResult.setHeaderBackground(new ImageHolder(R.drawable.header));
+        }
+        if (site_profile.equals("kinokrad")) {
+            headerResult.setActiveProfile(profile_kinokrad);
+            headerResult.setHeaderBackground(new ImageHolder(R.drawable.header2));
+        }
 
         drawerresult = new DrawerBuilder()
                 .withActivity(this)
@@ -505,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
 
         new RecyclerViewCacheUtil<IDrawerItem>().withCacheSize(2).apply(drawerresult.getRecyclerView(), drawerresult.getDrawerItems());
 
+     //запуск парсинга главной странички. тут должно быть условие по профилю.
         openpage(getResources().getString(R.string.link_item_startpage));
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -525,69 +461,54 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
 
     }
 
-
-
-    //=======================================================================================
-
+//------------------------------------------------------------------------------------
+    private void writeProfileSettings(String mProfile){
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor editor = SP.edit();
+        editor.putString("profile", mProfile);
+        editor.apply();
+    }
+//------------------------------------------------------------------------------------
+    private void readProfileSettings() {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        site_profile = SP.getString("profile", "kinogo");
+    }
+//------------------------------------------------------------------------------------
 
     public void clickgrid(Integer index){
         Item item;
         item=arrayList.get(index);
-        getflv(item.pagelink);
-        poster_url=item.pictureurl;
-        poster_header=item.header;
-        poster_sub_header=item.subheader;
+        getflv(item.mPagelink);
+        poster_url=item.mPictureurl;
+        poster_header=item.mHeader;
+        poster_sub_header=item.mSubHeader;
     }
-
+//------------------------------------------------------------------------------------
     private void opensearchpage(String link){
-
-       // new SearchKinogo().execute(link);
         Bundle myb = new Bundle();
         myb.putString("urlpage",link);
         SearchKinogoPageTask.execute(this, this,myb);
-
     }
+//------------------------------------------------------------------------------------
     private void openpage(String link){
-       //   new OpenKinogoPage().execute(link);
-
-
      Bundle myb = new Bundle();
      myb.putString("urlpage",link);
      OpenKinogoPageTask.execute(this, this,myb);
-
     }
-
+//------------------------------------------------------------------------------------
     private void getflv(String httpurl){
         Bundle myb = new Bundle();
         myb.putString("urlpage",httpurl);
         GetPlayerKinogo.execute(this, this,myb);
     }
-
+//------------------------------------------------------------------------------------
 
     private void showRecent(){
         Intent recent = new Intent(MainActivity.this, RecentActivity.class );
         startActivity(recent);
-
-       // Log.d("ololo",  Integer.toString(new Select().from(DbItem.class).count()));
-
-      //  recent.putExtra("headshot",mDbItem.mHeader);
-
-
-
-
-
-    //   new Delete().from(FilmHeader.class).where("_id = ?", 1).execute();
-  //   new Delete().from(FilmData.class).where("_id = ?", 1).execute();
-      //  new Delete().from(FilmHeader.class).where("_id = ?", 2).execute();
-     //   new Delete().from(FilmData.class).where("_id = ?", 2).execute();
-
         }
-
-
-
-
-
-    private void viewSeriesList(){
+//------------------------------------------------------------------------------------
+    private void viewSeriesList(String txt){
         Intent playerIntent = new Intent(MainActivity.this, PlaylistActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("series", playList);
@@ -595,71 +516,10 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
         playerIntent.putExtra("poster_url",poster_url);
         playerIntent.putExtra("poster_header",poster_header);
         playerIntent.putExtra("poster_subheader",poster_sub_header);
-
+        playerIntent.putExtra("poster_url_serial",txt);
         startActivity(playerIntent);
-
     }
-//=================парсинг страницы перед запуском фильма. получение base64 плеера, ссылок.
-
-
-
-    public void checkWatchSingleFilm (String myHeader, String myPosterUrl, String myUrl){
-
-        FilmHeader sHeader = new FilmHeader();
-        FilmData sData = new FilmData();
-
-        if (!sHeader.checkExistsDbItem(myHeader)) {
-            sHeader.mHeader = myHeader;
-            sHeader.mPosterUrl = myPosterUrl;
-            sHeader.mSerialFlag = false;
-            sHeader.mUrl = myUrl;
-            sHeader.mDateWatch = new Date();
-            sHeader.save();
-
-            sData.mSubHeader="";
-            sData.mUrl=myUrl;
-            sData.mDuration=0;
-            sData.mPosition=0;
-            sData.myFilmHeader=sHeader;
-            sData.save();
-            Log.d("ololo", "записали новый фильм в хистори");
-
-        }
-
-        else {
-            sHeader.updateDate(myHeader);
-            Log.d("ololo", "обновили");
-        }
-    }
-
-    public static void checkWatchSerialFilm (String myHeader, String myPosterUrl, String myUrl,String mySubHeader){
-
-        FilmHeader sHeader = new FilmHeader();
-        FilmData sData = new FilmData();
-
-        if (!sHeader.checkExistsDbItem(myHeader)) {
-            sHeader.mHeader = myHeader;
-            sHeader.mPosterUrl = myPosterUrl;
-            sHeader.mSerialFlag = true;
-            sHeader.mUrl = myUrl;
-            sHeader.mDateWatch = new Date();
-            sHeader.save();
-
-            sData.mSubHeader=mySubHeader;
-            sData.mUrl=myUrl;
-            sData.mDuration=0;
-            sData.mPosition=0;
-            sData.myFilmHeader=sHeader;
-            sData.save();
-        }
-
-        else {
-            sHeader.updateDate(myHeader);
-            Log.d("ololo", "обновили");
-        }
-    }
-
-
+//------------------------------------------------------------------------------------
 
     @Override
     public void onBackPressed() {
@@ -668,17 +528,15 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
         } else {
             super.onBackPressed();
         }
-
     }
+//------------------------------------------------------------------------------------
     public void back_click (View v) {
-
         openpage(GlobalData.Gd_back_pagelink);
     }
     public void forward_click (View v) {
-
        openpage(GlobalData.Gd_forward_pagelink);
     }
-
+//------------------------------------------------------------------------------------
     private void switchBackButton(Boolean flag){
 
        if (flag) {
@@ -707,6 +565,75 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
             forwardbutton.setClickable(false);
             System.out.println("вперед нетру");
         //   forwardbutton.setTextColor("#686666");
+        }
+    }
+ //------------------------------------------------------------------------------------
+  //==========парсит страницу с 10 фильмами
+    public class OpenKinogoPage extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String...parameter) {
+            String urlpage="";
+            for (String p : parameter)urlpage=p;
+
+            try {
+                arrayList.clear();
+               Document document = Jsoup.connect(urlpage).userAgent(userAgent).get();
+                Elements shortstory = document.select(".shortstory");
+                Elements headers = shortstory.select(".zagolovki");
+                Elements imgs = shortstory.select(".shortimg");
+
+                for(Element titleFromSite:headers){ //получение названия фильма
+                    if(titleFromSite.text().equals(""))   continue;
+                    String filmName = titleFromSite.text();
+                    Element link= titleFromSite.select("a").first();
+                    String linkHref = link.attr("href");
+
+
+                    Item tempitem = new Item("","","",0,0,"","");
+                    tempitem.mHeader=filmName;
+                    tempitem.mSubHeader=" ";
+                    tempitem.mPagelink=linkHref;
+                    arrayList.add(tempitem);
+                }
+                Integer i=0;
+                for(Element img:imgs){   // получение постера и описания
+                    if (imgs.size()==headers.size()){
+                        String subtext=img.text();
+                        Element link= img.select("a").first();
+                        String linkHref = link.attr("href");
+                        arrayList.get(i).mSubHeader=subtext;
+                        arrayList.get(i).mPictureurl=linkHref;
+                        i++;
+                    }
+                }
+                Elements buttons = document.select(".bot-navigation"); // получение ссылок на кнопки назад-вперед
+                for(Element button:buttons){
+                    Element link1= button.select("a").first();
+                    GlobalData.Gd_back_pagelink = link1.attr("href");
+                    Element link2= button.select("a").last();
+                    GlobalData.Gd_forward_pagelink = link2.attr("href");
+                }
+
+                Element span= buttons.select("span").first();
+                String temp = span.text();
+                if (temp.equalsIgnoreCase("Раньше")) switchBackButton(false);
+                else switchBackButton(true);
+
+                Element span2= buttons.select("span").last();
+                String temp2 = span2.text();
+                if (temp2.equalsIgnoreCase("Позже")) switchForwardButton(false);
+                else switchForwardButton(true);
+
+            }catch (IOException ex){
+                ex.printStackTrace();
+            }
+            return urlpage;
+        }
+        @Override
+        protected void onPostExecute(String urlpage) {
+            MainPageGridViewAdapter adapter = new MainPageGridViewAdapter (MainActivity.this, arrayList);
+            gv.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
     }
 

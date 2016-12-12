@@ -56,9 +56,9 @@ public class SearchKinogoPageTask extends AbstractTaskLoader {
                 Element link= titleFromSite.select("a").first();
                 String linkHref = link.attr("href");
 
-                Item tempitem = new Item("","","","","","","","");//создание массива плиток фильмов
-                tempitem.header=filmName;
-                tempitem.pagelink=linkHref;
+                Item tempitem = new Item("","","",0,0,"","");//создание массива плиток фильмов
+                tempitem.mHeader=filmName;
+                tempitem.mPagelink=linkHref;
                 arrayList.add(tempitem);
             }
 
@@ -69,8 +69,8 @@ public class SearchKinogoPageTask extends AbstractTaskLoader {
                     Element link= img.select("img").first();
                     String linkHref = link.absUrl("src");
                     System.out.println(linkHref);
-                    arrayList.get(i).subheader=subtext;
-                    arrayList.get(i).pictureurl=linkHref;
+                    arrayList.get(i).mSubHeader=subtext;
+                    arrayList.get(i).mPictureurl=linkHref;
                     i++;
                 }
             }

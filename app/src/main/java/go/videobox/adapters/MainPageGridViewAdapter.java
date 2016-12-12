@@ -55,15 +55,20 @@ public class MainPageGridViewAdapter extends BaseAdapter {
         TextView header = (TextView) convertView.findViewById(R.id.header);
         TextView subheader = (TextView) convertView.findViewById(R.id.subheader);
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.init(ImageLoaderConfiguration.createDefault(context));
+
+        if (!imageLoader.isInited()) {
+            imageLoader.init(ImageLoaderConfiguration.createDefault(context));
+        }
+
         DisplayImageOptions options = new DisplayImageOptions.Builder()
+
                 .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
                 .cacheInMemory()
                 .cacheOnDisc()
                 .build();
-        imageLoader.displayImage(items.get(position).pictureurl, imageView, options);
-        header.setText(items.get(position).header);
-        subheader.setText(items.get(position).subheader);
+        imageLoader.displayImage(items.get(position).mPictureurl, imageView, options);
+        header.setText(items.get(position).mHeader);
+        subheader.setText(items.get(position).mSubHeader);
         return convertView;
     }
 

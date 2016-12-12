@@ -8,7 +8,10 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import go.videobox.Mathem;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 import go.videobox.R;
 
@@ -53,19 +56,31 @@ public class PlaylistActivityListViewAdapter extends BaseAdapter {
         // ImageView imageView = (ImageView) someView.findViewById(R.id.img);
         TextView header = (TextView) someView.findViewById(R.id.item_headerText);
         TextView subHeader = (TextView) someView.findViewById(R.id.item_subHeaderText);
+        TextView positiontext = (TextView) someView.findViewById(R.id.tv_progress_position);
+        TextView progresstext = (TextView) someView.findViewById(R.id.tv_progress);
+        ProgressBar pb = (ProgressBar) someView.findViewById(R.id.progress);
+
         header.setTextColor(context.getResources().getColor(R.color.header_font_color));
         header.setText(data.get(i).mSubHeader);
         subHeader.setTextColor(context.getResources().getColor(R.color.sub_header_font_color));
         subHeader.setText(data.get(i).mSubsubHeader);
-        ProgressBar pb = (ProgressBar) someView.findViewById(R.id.progress);
-        pb.setProgress(positionfilm(data.get(i).mPosition,data.get(i).mDuration));
-        TextView progresstext = (TextView) someView.findViewById(R.id.tv_progress);
-        progresstext.setText(Integer.toString(positionfilm(data.get(i).mPosition,data.get(i).mDuration))+"%");
+
+
+
+        if (data.get(i).mDuration==0){
+            progresstext.setVisibility(View.INVISIBLE);
+            positiontext.setVisibility(View.INVISIBLE);
+       } else {
+            progresstext.setVisibility(View.VISIBLE);
+            positiontext.setVisibility(View.VISIBLE);
+            pb.setProgress(Mathem.positionfilm(data.get(i).mPosition,data.get(i).mDuration));
+            progresstext.setText(Integer.toString(Mathem.positionfilm(data.get(i).mPosition,data.get(i).mDuration))+"%");
+            positiontext.setText(Mathem.timetohours(data.get(i).mPosition)+"  из  " +Mathem.timetohours(data.get(i).mDuration));
+        }
+
+
         return someView;
     }
-    private static Integer positionfilm (Integer pos, Integer dur){
-        if ((pos==0)&&(dur==0))return 0;
-        return  (int)(((double)pos/(double)dur) * 100);
-    }
+
 }
 

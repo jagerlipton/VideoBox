@@ -55,7 +55,9 @@ public class RecentActivityGridViewAdapter extends BaseAdapter {
 
         // TextView subheader = (TextView) convertView.findViewById(R.id.subheader);
         ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.init(ImageLoaderConfiguration.createDefault(context));
+        if (!imageLoader.isInited()) {
+            imageLoader.init(ImageLoaderConfiguration.createDefault(context));
+        }
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
                 .cacheInMemory()

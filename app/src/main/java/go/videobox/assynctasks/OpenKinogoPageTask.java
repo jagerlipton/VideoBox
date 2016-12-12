@@ -56,24 +56,33 @@ public class OpenKinogoPageTask extends AbstractTaskLoader  {
             for (Element titleFromSite : headers) { //получение названия фильма
                 if (titleFromSite.text().equals("")) continue;
                 String filmName = titleFromSite.text();
-                Element link = titleFromSite.select("a").first();
+               Element link = titleFromSite.select("a").first();
                 String linkHref = link.attr("href");
 
 
-                Item tempitem = new Item("", "", "", "", "", "", "", "");
-                tempitem.header = filmName;
-                tempitem.subheader = " ";
-                tempitem.pagelink = linkHref;
+
+
+
+
+                Item tempitem = new Item("", "", "", 0, 0, "", "");
+                tempitem.mHeader = filmName;
+                tempitem.mSubHeader = " ";
+                tempitem.mPagelink = linkHref;
                 arrayList.add(tempitem);
             }
             Integer i = 0;
             for (Element img : imgs) {   // получение постера и описания
                 if (imgs.size() == headers.size()) {
                     String subtext = img.text();
-                    Element link = img.select("a").first();
-                    String linkHref = link.attr("href");
-                    arrayList.get(i).subheader = subtext;
-                    arrayList.get(i).pictureurl = linkHref;
+                   // Element link = img.select("a").first();  //большие постеры
+                 //   String linkHref = link.attr("href");
+
+                    Element link= img.select("img").first(); //мелкие постеры
+                    String linkHref = link.absUrl("src");
+                    System.out.println(linkHref);
+
+                    arrayList.get(i).mSubHeader = subtext;
+                    arrayList.get(i).mPictureurl = linkHref;
                     i++;
                 }
             }

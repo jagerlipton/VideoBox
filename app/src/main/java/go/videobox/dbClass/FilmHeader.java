@@ -12,6 +12,9 @@ import java.util.List;
 
     @Table(name = "Films",id = "_id")
     public class FilmHeader extends Model {
+        @Column(name = "Profile")
+        public String mProfile;
+
         @Column(name = "Header", unique = true)
         public String mHeader;
 
@@ -30,6 +33,8 @@ import java.util.List;
        @Column(name = "DateWatch")
         public Date mDateWatch;
 
+        @Column(name = "Description")
+        public String mDescription;
 
     public List<FilmData> filmList;
 
@@ -39,79 +44,77 @@ import java.util.List;
             super();
         }
 
-        public FilmHeader(String mHeader, String mPosterUrl, String mUrl, Boolean mSerialFlag) {
+        public FilmHeader(String mProfile, String mHeader,String mDescription, String mPosterUrl, String mUrl, Boolean mSerialFlag) {
             super();
-            this.mHeader = mHeader;
-            this.mPosterUrl = mPosterUrl;
-            this.mUrl = mUrl;
-            this.mSerialFlag = mSerialFlag;
+            this.mProfile = mProfile;//  имя профиля
+            this.mHeader = mHeader;   // название фильма
+            this.mDescription = mDescription;   // название фильма
+            this.mPosterUrl = mPosterUrl;  // линк постера
+            this.mUrl = mUrl;//  линк flv или txt
+            this.mSerialFlag = mSerialFlag;//  cериал или нет
 
         }
 
-
+//---------------------------------------------------------
     public Boolean checkExistsDbItem (String mHeader) {
-
         return  new Select().from(FilmHeader.class).where("Header = ?",mHeader).exists();
     }
-
-
+//---------------------------------------------------------
     public List<FilmData> getFilmList() {
       return getMany(FilmData.class, "FilmHeaderForeign");
        }
-
+//---------------------------------------------------------
     public  List<FilmHeader> getFifty() {
             return  new Select().from(FilmHeader.class).limit(50).orderBy("DateWatch DESC").execute();
     }
+//---------------------------------------------------------
     public static FilmHeader selectField(String fieldName, String fieldValue) {
-        return new Select().from(FilmHeader.class)
-                .where(fieldName + " = ?", fieldValue).executeSingle();
+        return new Select().from(FilmHeader.class).where(fieldName + " = ?", fieldValue).executeSingle();
     }
-
-
+//---------------------------------------------------------
+    private static FilmData selectFieldData(String fieldName, String fieldValue) {
+            return new Select().from(FilmData.class).where(fieldName + " = ?", fieldValue).executeSingle();
+     }
+//---------------------------------------------------------
     public  void updateDate(String myHeader) {
         FilmHeader model = selectField("Header", myHeader);
         model.mDateWatch = new Date ();
         model.save();
     }
+//----------------------------------------------------------
 
+//добавление позиции к фильму
     public  void updatePositionFilm(String myHeader,String mySubHeader,Integer myPos,Integer myDur ) {
-        FilmHeader model = selectField("Header", myHeader);
-        if (model.mSerialFlag) {
-            List<FilmData> dlist = model.getFilmList();
-            if (dlist.size() > 0)
-                for (FilmData data : dlist) {
-                    data.mDuration = myPos;
-                    data.mPosition = myDur;
-                    data.save();
-                }
-        } else { //если сериал
-            List<FilmData> dlist = model.getFilmList();
-            if (dlist.size() > 0)
-                for (FilmData data : dlist)     if (data.mSubHeader.equals(mySubHeader)) {
-                    data.mDuration = myPos;
-                    data.mPosition = myDur;
-                    data.save();
-                }
+        FilmHeader mHeader = selectField("Header", myHeader);
+
+
+        if (!mHeader.mSerialFlag){ //Если не сериал
+            FilmData mData = new FilmData();
+            if (mData.checkExistsDbItem(myHeader)) mData =  selectFieldData("SubHeader",myHeader); //выделить ячейку с фильмом
+            mData.mDuration = myDur;
+            mData.mPosition = myPos;
+            mData.save();
         }
-
-
-
-        List<FilmData> dlist = model.getFilmList();
-        if (dlist.size()>0) {
-            for (FilmData data: dlist) {
-                if (data.mSubHeader.equals(mySubHeader)) {
-                    data.mDuration = myPos;
-                    data.mPosition = myDur;
-                    data.save();
-
-                }
-            }
+        else {
+            FilmData mData = new FilmData();
+            if (mData.checkExistsDbItem(mySubHeader)) mData =  selectFieldData("SubHeader",mySubHeader); //выделить ячейку с серией
+            mData.mDuration = myDur;
+            mData.mPosition = myPos;
+            mData.save();
         }
-
-
     }
-
+//---------------------------------------------------------
+    public  void addSeries(String myHeader,String mySubHeader, String murl) {
+            FilmHeader model = selectField("Header", myHeader);
+            FilmData sData = new FilmData();
+            sData.mSubHeader=mySubHeader;
+            sData.mUrl=murl;
+            sData.mDuration=0;
+            sData.mPosition=0;
+            sData.myFilmHeader=model;
+            sData.save();
+                 }
     }
-
+//---------------------------------------------------------
 
 
