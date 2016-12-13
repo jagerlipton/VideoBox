@@ -181,8 +181,6 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
 
             if( data != null )
                 MXPlayerResults.dumpParams(data,poster_header,poster_sub_header);
-
-            finish();
         }
         else
             super.onActivityResult(requestCode, resultCode, data);
@@ -281,21 +279,24 @@ public class MainActivity extends AppCompatActivity implements ITaskLoaderListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ActiveAndroid.initialize(this);
-
+//--------------------------
 
       FilmHeader sHeader = new FilmHeader();
         List<FilmHeader> setting = sHeader.getFifty();
         for (FilmHeader qitem: setting) {
             Log.d("ololo", qitem.mHeader + " id "+qitem.getId()+ " url  "+ qitem.mUrl);
-          List<FilmData> slist= qitem.getFilmList();
+        List<FilmData> slist= qitem.getFilmList();
            for (FilmData qqq : slist) {
-               Log.d("ololo", qqq.mSubHeader+"----"+qqq.mPosition + "  /  "+   qqq.mDuration+"  "+ Mathem.timetohours(qqq.mPosition));
+               Log.d("ololo", qqq.mSubHeader+"----"+qqq.mPosition + "  /  "+   qqq.mDuration+"  "+ qqq.getId());
               // qqq.updatePosition(qqq.mSubHeader);
 
            }
         }
-
-
+      /*  FilmData sData = new FilmData();
+        List<FilmData> ddd = sData.getFifty();
+        for (FilmData qitem: ddd) {
+            Log.d("ololo", qitem.mSubHeader + " id "+qitem.getId());}*/
+//----------------------------------------
         gv=(GridView) findViewById(R.id.gridView1);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

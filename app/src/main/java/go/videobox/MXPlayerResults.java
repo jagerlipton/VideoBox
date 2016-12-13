@@ -2,13 +2,28 @@ package go.videobox;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.lang.reflect.Array;
+import java.util.Collection;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
+
+import go.videobox.adapters.PlaylistItem;
 import go.videobox.dbClass.FilmHeader;
 
 public class MXPlayerResults {
@@ -61,7 +76,10 @@ public class MXPlayerResults {
     private static final int ORIENTATION_AUTO_ROTATION				= ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
     private static final int ORIENTATION_SYSTEM_DEFAULT				= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private static final int ORIENTATION_MATCH_VIDEO_ORIENTATION	= 99999;
-
+    private static final String 	PACKAGE_NAME_PRO 		= "com.mxtech.videoplayer.pro";
+    private static final String 	PACKAGE_NAME_AD 		= "com.mxtech.videoplayer.ad";
+    private static final String 	PLAYBACK_ACTIVITY_PRO	= "com.mxtech.videoplayer.ActivityScreen";
+    private static final String 	PLAYBACK_ACTIVITY_AD	= "com.mxtech.videoplayer.ad.ActivityScreen";
 
 //-----------------------------------------------------------------------------------
     public static void dumpParams( Intent intent,String poster_header, String poster_sub_header) {
@@ -89,9 +107,18 @@ public class MXPlayerResults {
                     String position =sb.toString();
                     p= Integer.parseInt(position);
                 }
-            }
+        }
             FilmHeader mfilm = new FilmHeader();
             mfilm.updatePositionFilm(poster_header,poster_sub_header,p,d);
+
+            for (PlaylistItem plitem: PlaylistActivity.playList)
+                if ((plitem.mSubHeader.equals(poster_sub_header))&&(plitem.mHeader.equals(poster_header)))   {
+                    plitem.mPosition=p;
+                    plitem.mDuration=d;
+            }
+
+
+            Log.d("ololo",poster_header+"/"+poster_sub_header+"position - "+p);//  описание.
               }
     }
 
@@ -198,6 +225,48 @@ public class MXPlayerResults {
             if( UpDownAction != null )
                 intent.putExtra( EXTRA_KEYS_DPAD_UPDOWN, UpDownAction );
         }
+    }
+
+
+
+//------------------------------------------------------------------------
+public static class MXPackageInfo
+{
+    final String packageName;
+    final String activityName;
+
+    MXPackageInfo( String packageName, String activityName ) {
+        this.packageName = packageName;
+        this.activityName = activityName;
+    }
+}
+
+    private static final MXPackageInfo[] PACKAGES = {
+            new MXPackageInfo(PACKAGE_NAME_PRO, PLAYBACK_ACTIVITY_PRO),
+            new MXPackageInfo(PACKAGE_NAME_AD, PLAYBACK_ACTIVITY_AD),
+    };
+
+
+
+    public static MXPackageInfo getMXPackageInfo(Context context)
+    {
+        for( MXPackageInfo pkg: PACKAGES )
+        {
+            try
+            {
+                ApplicationInfo info = context.getPackageManager().getApplicationInfo(pkg.packageName, 0);
+                if( info.enabled )
+                    return pkg;
+                else
+                    Log.v( TAG, "MX Player package `" + pkg.packageName + "` is disabled." );
+            }
+            catch(PackageManager.NameNotFoundException ex)
+            {
+                Log.v( TAG, "MX Player package `" + pkg.packageName + "` does not exist." );
+            }
+        }
+
+        return null;
     }
 
 

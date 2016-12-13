@@ -66,14 +66,14 @@ public class PlaylistActivityListViewAdapter extends BaseAdapter {
         subHeader.setText(data.get(i).mSubsubHeader);
 
 
-
+        pb.setProgress(Mathem.positionfilm(data.get(i).mPosition,data.get(i).mDuration));
         if (data.get(i).mDuration==0){
             progresstext.setVisibility(View.INVISIBLE);
             positiontext.setVisibility(View.INVISIBLE);
        } else {
             progresstext.setVisibility(View.VISIBLE);
             positiontext.setVisibility(View.VISIBLE);
-            pb.setProgress(Mathem.positionfilm(data.get(i).mPosition,data.get(i).mDuration));
+
             progresstext.setText(Integer.toString(Mathem.positionfilm(data.get(i).mPosition,data.get(i).mDuration))+"%");
             positiontext.setText(Mathem.timetohours(data.get(i).mPosition)+"  из  " +Mathem.timetohours(data.get(i).mDuration));
         }

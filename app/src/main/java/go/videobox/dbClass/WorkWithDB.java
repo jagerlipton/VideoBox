@@ -4,6 +4,9 @@ package go.videobox.dbClass;
 import android.util.Log;
 
 import java.util.Date;
+import java.util.List;
+
+import static go.videobox.dbClass.FilmHeader.selectField;
 
 public  class WorkWithDB {
 
@@ -12,7 +15,7 @@ public  class WorkWithDB {
         FilmHeader sHeader = new FilmHeader();
         FilmData sData = new FilmData();
 
-        if (!sHeader.checkExistsDbItem(myHeader)) {
+        if (!sHeader.checkExistsDbItem(myHeader)) { //если хедера не существует
 
             sHeader.mHeader = myHeader;
             sHeader.mDescription=myDescription;
@@ -29,22 +32,26 @@ public  class WorkWithDB {
             sData.mPosition=0;
             sData.myFilmHeader=sHeader;
             sData.save();
+
+            Log.d("ololo", "добавили новый сериал");
         }
 
-        else {
-            if (sData.checkExistsDbItem(mySubHeader)){
-                sHeader.updateDate(myHeader);
+        else { // если существует
+            sHeader = selectField("Header", myHeader);
+            List<FilmData> listdata1 = sHeader.getFilmList();
+            if (listdata1.size() > 0) {
+                Boolean ex = false;
+                for (FilmData fordata : listdata1)
+                    if (fordata.mSubHeader.contains(mySubHeader)) {  // если такая серия существует,
+                        sHeader.updateDate(myHeader);  /// обновить дату
+                        Log.d("ololo", "обновили дату");
+                        ex = true;
+                    }
+                if (!ex) {
+                    sHeader.addSeries(myHeader, mySubHeader, myUrlSeries);     //запись несуществующей серии сериала
+                    Log.d("ololo", "добавили серию");
+                }
             }
-            else {
-                //запись несуществующей серии сериала
-                sHeader.addSeries(myHeader,mySubHeader,myUrlSeries);
-
-            }
-
-
-
-
-            Log.d("ololo", "обновили");
         }
     }
  //--------------------------------------------------------------

@@ -34,8 +34,8 @@ public class FilmData extends Model {
 //---------------------------------------------------------
 
     public Boolean checkExistsDbItem (String mHeader) {
-        return  new Select().from(FilmData.class).where("SubHeader = ?",mHeader).exists();
-    }
+       return  new Select().from(FilmData.class).where("SubHeader = ?",mHeader).exists();
+   }
 //---------------------------------------------------------
 
 

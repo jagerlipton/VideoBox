@@ -147,9 +147,6 @@ public class RecentActivity extends AppCompatActivity implements ITaskLoaderList
     @Override
     protected void onResume() {
         super.onResume();
-  //      Intent intent = getIntent();
-     ///   String headshot = intent.getStringExtra("headshot");
-//        Log.d("ololo", headshot);
     }
 
     @Override
@@ -187,7 +184,6 @@ public class RecentActivity extends AppCompatActivity implements ITaskLoaderList
           startplayer(item.mUrl);
        }
         else {
-       //    Log.d("ololo", "плейлист азазаз");
         //старт распознавания плейлиста и старт плейлист активити
            Bundle myb = new Bundle();
            myb.putString("urlpage",item.mUrl);
@@ -196,10 +192,6 @@ public class RecentActivity extends AppCompatActivity implements ITaskLoaderList
            poster_header=item.mHeader;
            poster_sub_header=item.mDescription;
            poster_url=item.mPosterUrl;
-//хедер есть, сабхедера нет, постер есть.
-           //в мурл попала ссылка на файл серию
-         //  System.out.println(item.mUrl); System.out.println(item.mHeader);System.out.println(item.mPosterUrl);
-           Log.d("ololo", item.mUrl);
            GetPlaylistKinogo.execute(this, this,myb);
        }
 
@@ -246,8 +238,6 @@ public class RecentActivity extends AppCompatActivity implements ITaskLoaderList
 
             if( data != null )
                 MXPlayerResults.dumpParams(data,poster_header,poster_sub_header);
-
-		           finish();
         }
         else
             super.onActivityResult(requestCode, resultCode, data);

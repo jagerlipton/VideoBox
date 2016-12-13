@@ -1,5 +1,7 @@
 package go.videobox;
 
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +28,7 @@ import go.videobox.dbClass.FilmHeader;
 import go.videobox.dbClass.WorkWithDB;
 
 public class PlaylistActivity extends AppCompatActivity {
-    private ArrayList<PlaylistItem> playList = new ArrayList<>();
+    public static ArrayList<PlaylistItem> playList = new ArrayList<>();
     String poster_url="";  // линк тхт на сериал
     String poster_header="";  //  имя сериала
     String poster_sub_header="";   // описание сериала
@@ -95,20 +97,18 @@ public class PlaylistActivity extends AppCompatActivity {
         mmmHeader=playList.get(pos).mHeader; //имя сериала
         mmmSubHeader=playList.get(pos).mSubHeader; // номер серии
         WorkWithDB.checkWatchSerialFilm(poster_header,poster_url,txturl,flvurl,mmmSubHeader,poster_sub_header); //проверка тоже должны быть уже с flv серией
-
+        Log.d("ololo",poster_header+"/"+mmmSubHeader);//
       //  Log.d("ololo",poster_header); // имя сериала
       //  Log.d("ololo",poster_sub_header);//  описание.
         Intent playerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(flvurl));
         playerIntent.putExtra(MainActivity.EXTRA_RETURN_RESULT, true);
+        MXPlayerResults.MXOptions options = new MXPlayerResults.MXOptions();
         if (playList.get(pos).mPosition>0) {
-            MXPlayerResults.MXOptions options = new MXPlayerResults.MXOptions();
+
             options.resumeAt = playList.get(pos).mPosition;
             if( options != null )   options.putToIntent(playerIntent);
         }
-
-        startActivityForResult(playerIntent,REQUEST_CODE);
-
-
+     startActivityForResult(playerIntent,REQUEST_CODE);
     }
 
 
@@ -139,7 +139,12 @@ public class PlaylistActivity extends AppCompatActivity {
 
             if( data != null )
                 MXPlayerResults.dumpParams(data,mmmHeader,mmmSubHeader);
-            finish();
+
+            ListView list = (ListView) findViewById(R.id.playlistview);
+
+            PlaylistActivityListViewAdapter adapter = new PlaylistActivityListViewAdapter(this, playList);
+            list.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
         else
             super.onActivityResult(requestCode, resultCode, data);

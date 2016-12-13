@@ -1,5 +1,7 @@
 package go.videobox.dbClass;
 
+import android.util.Log;
+
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
@@ -85,8 +87,8 @@ import java.util.List;
 
 //добавление позиции к фильму
     public  void updatePositionFilm(String myHeader,String mySubHeader,Integer myPos,Integer myDur ) {
-        FilmHeader mHeader = selectField("Header", myHeader);
 
+        FilmHeader mHeader = selectField("Header", myHeader);
 
         if (!mHeader.mSerialFlag){ //Если не сериал
             FilmData mData = new FilmData();
@@ -96,11 +98,24 @@ import java.util.List;
             mData.save();
         }
         else {
-            FilmData mData = new FilmData();
-            if (mData.checkExistsDbItem(mySubHeader)) mData =  selectFieldData("SubHeader",mySubHeader); //выделить ячейку с серией
+
+            List<FilmData> listdata = mHeader.getFilmList();
+            for (FilmData fordata: listdata)
+            if (fordata.mSubHeader.contains(mySubHeader))
+            {
+                fordata.mDuration = myDur;
+                fordata.mPosition = myPos;
+                fordata.save();
+                Log.d("ololo","нашли серию, пишем -  "+fordata.mSubHeader);
+            }
+
+           //по субхедеру нельзя выделять. есть совпадения
+          /*/  if (mData.checkExistsDbItem(mySubHeader)) mData =  selectFieldData("SubHeader",mySubHeader); //выделить ячейку с серией
+            Log.d("ololo","выделенная ячейка -  "+mData.mSubHeader);
             mData.mDuration = myDur;
             mData.mPosition = myPos;
-            mData.save();
+            mData.save();*/
+
         }
     }
 //---------------------------------------------------------
